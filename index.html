@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Video Access</title>
+
 <style>
 *{box-sizing:border-box}
 body{
@@ -50,8 +51,21 @@ button:disabled{background:#34443d;color:#a0b0a8;cursor:not-allowed}
 }
 .output{display:none;overflow-wrap:anywhere;color:#9df5d0;font-size:12px;margin-top:15px}
 .small{text-align:center;color:#69877b;font-size:11px;margin-top:22px}
+.modal-bg{
+ display:none;position:fixed;inset:0;background:#000c;
+ align-items:center;justify-content:center;padding:20px;z-index:9999
+}
+.modal{
+ width:100%;max-width:360px;background:#14231d;
+ border:1px solid #ff586a;border-radius:18px;
+ padding:25px;text-align:center;box-shadow:0 15px 50px #000b
+}
+.modal h2{color:#ff7583;font-size:21px}
+.modal p{color:#f3c2c7;line-height:1.7;font-size:14px}
+.modal button{margin-top:12px}
 </style>
 </head>
+
 <body>
 <div class="container">
 <div class="card">
@@ -63,11 +77,24 @@ button:disabled{background:#34443d;color:#a0b0a8;cursor:not-allowed}
 </div>
 </div>
 
+<div class="modal-bg" id="modalBg">
+ <div class="modal">
+  <h2>⚠️ අවවාදයයි!</h2>
+  <p id="modalMessage">
+   තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත.
+   නැවත දැන්වීම් Link එක විවෘත කරන්න.
+  </p>
+  <button id="modalClose">හරි</button>
+ </div>
+</div>
+
 <script>
 const app=document.getElementById('app');
 const params=new URLSearchParams(location.search);
 const video=params.get('video');
 const ad=params.get('ad');
+
+const STORAGE_KEY='video_access_timer_v2';
 
 function validURL(s){
  try{
@@ -75,6 +102,15 @@ function validURL(s){
   return ['https:','http:'].includes(u.protocol)?u.href:null;
  }catch(e){return null}
 }
+
+function showModal(message){
+ document.getElementById('modalMessage').textContent=message;
+ document.getElementById('modalBg').style.display='flex';
+}
+
+document.getElementById('modalClose').onclick=()=>{
+ document.getElementById('modalBg').style.display='none';
+};
 
 function showGenerator(){
  app.innerHTML=`
@@ -98,7 +134,7 @@ function showGenerator(){
   const a=validURL(document.getElementById('ad').value.trim());
 
   if(!v||!a){
-   showMessage('කරුණාකර නිවැරදි Video සහ Ad Links ඇතුළත් කරන්න.');
+   showModal('කරුණාකර නිවැරදි Video සහ Ad Links ඇතුළත් කරන්න.');
    return;
   }
 
@@ -116,25 +152,17 @@ function showGenerator(){
     await navigator.clipboard.writeText(u.href);
     document.getElementById('copy').textContent='COPY කළා ✓';
    }catch(e){
-    showMessage('Link එක Copy කරන්න පහත Link එක භාවිතා කරන්න.');
+    showModal('Link එක පහත ඇති කොටසෙන් Copy කරන්න.');
    }
   };
  };
-}
-
-function showMessage(message){
- const warning=document.getElementById('warning');
- if(warning){
-  warning.innerHTML='<strong>⚠️ අවවාදයයි!</strong><br>'+message;
-  warning.style.display='block';
- }
 }
 
 function showGate(v,a){
  app.innerHTML=`
  <div class="section">
  <h3 style="text-align:center">පියවර 01 — දැන්වීම් Link එක</h3>
- <p class="status">පහත Button එක Click කර අලුත් Tab එකක දැන්වීම් Link එක විවෘත කරන්න.</p>
+ <p class="status">පහත Button එක Click කර දැන්වීම් Link එක විවෘත කරන්න.</p>
  <button id="open">AD LINK එක විවෘත කරන්න ↗</button>
  </div>
 
@@ -142,118 +170,75 @@ function showGate(v,a){
  <h3 style="text-align:center">වීඩියෝව Unlock කිරීම</h3>
  <div class="timer" id="timer">05</div>
  <div class="bar"><div class="fill" id="fill"></div></div>
- <p class="status" id="status">AD Link එක විවෘත කළ පසු තත්පර 5 ගණනය වීම ආරම්භ වේ.</p>
+ <p class="status" id="status">AD Link එක විවෘත කළ පසු තත්පර 5 ගණනය වේ.</p>
  <button id="unlock" disabled>🔒 වීඩියෝව Unlock කරන්න</button>
- <div class="warning" id="warning">
- <strong>⚠️ අවවාදයයි!</strong><br>
- තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත.<br>
- නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.
- </div>
  </div>`;
-
- let started=0;
- let done=false;
- let hasLeftPage=false;
- let interval=null;
 
  const timer=document.getElementById('timer');
  const fill=document.getElementById('fill');
  const status=document.getElementById('status');
- const warning=document.getElementById('warning');
  const unlock=document.getElementById('unlock');
  const open=document.getElementById('open');
 
- function resetTimer(){
-  clearInterval(interval);
-  started=0;
-  hasLeftPage=false;
-  timer.textContent='05';
-  fill.style.width='0%';
-  unlock.disabled=true;
-  unlock.textContent='🔒 වීඩියෝව Unlock කරන්න';
-  open.disabled=false;
-  open.textContent='AD LINK එක නැවත විවෘත කරන්න ↗';
-  status.textContent='නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.';
- }
+ let done=false;
 
- function finishTimer(){
+ function finish(){
   if(done)return;
-
   done=true;
-  clearInterval(interval);
   timer.textContent='✓';
   fill.style.width='100%';
   status.textContent='තත්පර 5 සම්පූර්ණයි! දැන් වීඩියෝව නැරඹිය හැකියි.';
   unlock.disabled=false;
   unlock.textContent='▶ වීඩියෝව බලන්න';
-  warning.style.display='none';
   open.disabled=true;
  }
 
- function updateTimer(){
-  if(!started||done)return;
+ function checkReturn(){
+  const saved=sessionStorage.getItem(STORAGE_KEY);
+  if(!saved)return;
 
-  const elapsed=Date.now()-started;
-  const remaining=Math.max(0,5000-elapsed);
+  sessionStorage.removeItem(STORAGE_KEY);
 
-  timer.textContent=String(Math.ceil(remaining/1000)).padStart(2,'0');
-  fill.style.width=Math.min(100,elapsed/50)+'%';
+  let data;
+  try{
+   data=JSON.parse(saved);
+  }catch(e){
+   return;
+  }
+
+  if(!data || !data.started)return;
+
+  const elapsed=Date.now()-data.started;
+  const remaining=5000-elapsed;
 
   if(remaining<=0){
-   finishTimer();
-  }
- }
-
- function returned(){
-  if(!started||done||!hasLeftPage)return;
-
-  const elapsed=Date.now()-started;
-
-  if(elapsed>=5000){
-   finishTimer();
+   finish();
   }else{
-   resetTimer();
-   warning.style.display='block';
-   status.textContent='ඔබ තත්පර 5ට පෙර නැවත පැමිණියා. නැවත උත්සාහ කරන්න.';
+   timer.textContent='05';
+   fill.style.width='0%';
+   status.textContent='තත්පර 5ට පෙර නැවත පැමිණියා. නැවත උත්සාහ කරන්න.';
+   showModal('තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත. නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.');
   }
  }
 
  open.onclick=()=>{
-  if(started||done)return;
+  if(done)return;
 
-  const w=window.open(a,'_blank');
+  sessionStorage.setItem(STORAGE_KEY,JSON.stringify({
+   started:Date.now()
+  }));
 
-  if(!w){
-   showMessage('කරුණාකර Browser Pop-ups සඳහා අවසර ලබාදී නැවත උත්සාහ කරන්න.');
-   return;
-  }
-
-  try{w.opener=null}catch(e){}
-
-  started=Date.now();
-  hasLeftPage=true;
-
-  warning.style.display='none';
-  status.textContent='කරුණාකර තත්පර 5ක් රැඳී සිටින්න...';
-  open.disabled=true;
-  open.textContent='AD LINK එක විවෘත කළා ✓';
-
-  interval=setInterval(updateTimer,100);
+  location.href=a;
  };
-
- window.addEventListener('focus',returned);
-
- document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible'){
-   returned();
-  }
- });
 
  unlock.onclick=()=>{
   if(done){
+   sessionStorage.removeItem(STORAGE_KEY);
    location.href=v;
   }
  };
+
+ checkReturn();
 }
 
 const v=validURL(video||'');
