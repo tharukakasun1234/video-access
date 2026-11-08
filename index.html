@@ -5,21 +5,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#08151c">
-<title>Video Access</title>
+<title>Unlock Your Video</title>
 
 <style>
 *{box-sizing:border-box}
-:root{
- --cyan:#8af9ed;
- --green:#51f5c3;
- --glass:rgba(255,255,255,.085);
- --border:rgba(255,255,255,.19);
-}
+:root{--cyan:#8af9ed;--green:#51f5c3}
 body{
  margin:0;min-height:100vh;min-height:100dvh;
  display:flex;align-items:center;justify-content:center;
- padding:12px;overflow-x:hidden;
- color:#fff;
+ padding:12px;overflow-x:hidden;color:#fff;
  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
  background:
  radial-gradient(ellipse at 12% 15%,rgba(0,255,195,.22),transparent 42%),
@@ -31,43 +25,27 @@ body:before,body:after{
  filter:blur(65px);pointer-events:none;opacity:.42;
  animation:float 9s ease-in-out infinite alternate;
 }
-body:before{
- width:220px;height:220px;background:#00e6ba;
- top:-100px;right:-70px;
-}
-body:after{
- width:240px;height:240px;background:#526cff;
- bottom:-110px;left:-90px;animation-delay:-4s;
-}
-@keyframes float{
- from{transform:translate(0,0)}
- to{transform:translate(35px,30px)}
-}
-.wrapper{
- width:100%;max-width:405px;position:relative;z-index:1;
-}
+body:before{width:220px;height:220px;background:#00e6ba;top:-100px;right:-70px}
+body:after{width:240px;height:240px;background:#526cff;bottom:-110px;left:-90px;animation-delay:-4s}
+@keyframes float{from{transform:translate(0,0)}to{transform:translate(35px,30px)}}
+.wrapper{width:100%;max-width:405px;position:relative;z-index:1}
 .glass{
  position:relative;overflow:hidden;
- border:1px solid var(--border);
+ border:1px solid rgba(255,255,255,.19);
  background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.035));
  backdrop-filter:blur(30px) saturate(160%);
  -webkit-backdrop-filter:blur(30px) saturate(160%);
- box-shadow:0 25px 75px rgba(0,0,0,.38),
- inset 0 1px 1px rgba(255,255,255,.3),
- inset 0 -1px 1px rgba(255,255,255,.05);
+ box-shadow:0 25px 75px rgba(0,0,0,.38),inset 0 1px 1px rgba(255,255,255,.3),inset 0 -1px 1px rgba(255,255,255,.05);
 }
-.card{
- border-radius:30px;padding:24px 21px 18px;
-}
+.card{border-radius:30px;padding:24px 21px 18px}
 .card:before{
  content:"";position:absolute;inset:0;pointer-events:none;
  background:linear-gradient(125deg,rgba(255,255,255,.13),transparent 35%,transparent 70%,rgba(255,255,255,.045));
 }
 .content{position:relative;z-index:1;text-align:center}
 .logo{
- width:62px;height:62px;margin:0 auto 12px;
- border-radius:22px;display:grid;place-items:center;
- font-size:28px;color:#a6ffec;
+ width:62px;height:62px;margin:0 auto 12px;border-radius:22px;
+ display:grid;place-items:center;font-size:28px;color:#a6ffec;
  border:1px solid rgba(255,255,255,.3);
  background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.035));
  box-shadow:inset 0 1px 8px #ffffff30,0 8px 25px #0003;
@@ -78,25 +56,18 @@ h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
 .input{
  width:100%;height:46px;margin:6px 0;padding:0 15px;
  border-radius:14px;border:1px solid rgba(255,255,255,.17);
- background:rgba(255,255,255,.075);
- color:#fff;font-size:13px;outline:none;
- box-shadow:inset 0 1px 5px #0002;
+ background:rgba(255,255,255,.075);color:#fff;font-size:13px;outline:none;
 }
 .input::placeholder{color:#a9bec1}
-.input:focus{
- border-color:rgba(104,255,218,.7);
- box-shadow:0 0 0 3px rgba(70,255,208,.1),inset 0 1px 5px #0002;
-}
+.input:focus{border-color:rgba(104,255,218,.7);box-shadow:0 0 0 3px rgba(70,255,208,.1)}
 .btn{
- width:100%;min-height:49px;padding:12px 14px;
- margin:6px 0;border-radius:16px;
- border:1px solid rgba(255,255,255,.24);
- color:#f5ffff;font-size:14px;font-weight:700;
- cursor:pointer;position:relative;overflow:hidden;
+ width:100%;min-height:49px;padding:12px 14px;margin:6px 0;
+ border-radius:16px;border:1px solid rgba(255,255,255,.24);
+ color:#f5ffff;font-size:14px;font-weight:700;cursor:pointer;
+ position:relative;overflow:hidden;
  background:linear-gradient(135deg,rgba(255,255,255,.19),rgba(255,255,255,.055));
  box-shadow:inset 0 1px 1px #ffffff45,0 8px 20px #0002;
- backdrop-filter:blur(14px);
- -webkit-backdrop-filter:blur(14px);
+ backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
  transition:transform .2s,background .2s,opacity .2s;
 }
 .btn:before{
@@ -108,43 +79,21 @@ h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
 .btn:not(:disabled):hover:before{left:150%}
 .btn:not(:disabled):active{transform:scale(.97)}
 .btn:disabled{opacity:.35;cursor:not-allowed}
-.ad-btn{
- background:linear-gradient(120deg,rgba(38,226,183,.25),rgba(255,255,255,.065));
- border-color:rgba(101,255,218,.32);
-}
+.ad-btn{background:linear-gradient(120deg,rgba(38,226,183,.25),rgba(255,255,255,.065));border-color:rgba(101,255,218,.32)}
 .primary{
- color:#06241f;
- border-color:rgba(255,255,255,.55);
+ color:#06241f;border-color:rgba(255,255,255,.55);
  background:linear-gradient(125deg,#a3ffe9,#47e5bf 55%,#64d9ec);
- box-shadow:0 8px 28px rgba(54,242,195,.22),
- inset 0 1px 2px #ffffffc0;
+ box-shadow:0 8px 28px rgba(54,242,195,.22),inset 0 1px 2px #ffffffc0;
 }
 .status{
- min-height:39px;margin-top:10px;padding:10px 9px;
- border-radius:13px;
+ min-height:39px;margin-top:10px;padding:10px 9px;border-radius:13px;
  border:1px solid rgba(255,255,255,.11);
- background:rgba(255,255,255,.045);
- color:#c6dddd;font-size:11px;line-height:1.5;
+ background:rgba(255,255,255,.045);color:#c6dddd;font-size:11px;line-height:1.5;
 }
-.countdown{
- min-height:20px;margin:5px 0 3px;
- color:var(--cyan);font-size:12px;font-weight:750;
- letter-spacing:.5px;
-}
-.progress{
- height:4px;margin:0 0 8px;
- border-radius:20px;overflow:hidden;background:#ffffff15;
-}
-.progress span{
- display:block;width:0;height:100%;
- border-radius:20px;
- background:linear-gradient(90deg,#4de9bd,#b0fff1);
- box-shadow:0 0 12px #4de9bd;
-}
-.footer{
- margin-top:15px;color:#8fa9ac;font-size:10px;
- letter-spacing:1px;
-}
+.countdown{min-height:20px;margin:5px 0 3px;color:var(--cyan);font-size:12px;font-weight:750;letter-spacing:.5px}
+.progress{height:4px;margin:0 0 8px;border-radius:20px;overflow:hidden;background:#ffffff15}
+.progress span{display:block;width:0;height:100%;border-radius:20px;background:linear-gradient(90deg,#4de9bd,#b0fff1);box-shadow:0 0 12px #4de9bd}
+.footer{margin-top:15px;color:#8fa9ac;font-size:10px;letter-spacing:1px}
 .hidden{display:none!important}
 @media(max-height:700px){
  .card{padding:16px 18px 12px;border-radius:26px}
@@ -158,50 +107,36 @@ h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
 }
 </style>
 </head>
-
 <body>
 <div class="wrapper">
 <div class="glass card">
 <div class="content">
 
  <div class="logo"><span>▶</span></div>
- <h1>Video Access</h1>
+ <h1>Unlock Your Video</h1>
  <p class="subtitle" id="subtitle">Complete the steps below to unlock your video</p>
 
  <section id="generator" class="hidden">
   <input class="input" id="videoUrl" placeholder="Enter Video URL">
   <input class="input" id="adUrl1" placeholder="Enter First Ad URL">
   <input class="input" id="adUrl2" placeholder="Enter Second Ad URL">
-
   <button class="btn primary" onclick="generateLink()">✦ Generate Link</button>
-
   <input class="input hidden" id="generatedLink" readonly>
   <button class="btn hidden" id="copyBtn" onclick="copyLink()">Copy Link</button>
-
   <div class="status" id="generatorStatus">Enter all three links to continue.</div>
  </section>
 
  <section id="gateway" class="hidden">
-
-  <button class="btn ad-btn" id="adButton1" onclick="openAd(1)">
-   ↗ &nbsp; Watch First Ad
-  </button>
+  <button class="btn ad-btn" id="adButton1" onclick="openAd(1)">↗ &nbsp; Watch First Ad</button>
   <div class="countdown" id="countdown1"></div>
   <div class="progress"><span id="progress1"></span></div>
 
-  <button class="btn ad-btn" id="adButton2" onclick="openAd(2)" disabled>
-   ↗ &nbsp; Watch Second Ad
-  </button>
+  <button class="btn ad-btn" id="adButton2" onclick="openAd(2)" disabled>↗ &nbsp; Watch Second Ad</button>
   <div class="countdown" id="countdown2"></div>
   <div class="progress"><span id="progress2"></span></div>
 
-  <button class="btn primary" id="videoButton" onclick="openVideo()" disabled>
-   ▶ &nbsp; Unlock Video
-  </button>
-
-  <div class="status" id="status">
-   Open the first ad to get started.
-  </div>
+  <button class="btn primary" id="videoButton" onclick="openVideo()" disabled>▶ &nbsp; Unlock Video</button>
+  <div class="status" id="status">Open the first ad to get started.</div>
  </section>
 
  <div class="footer">PREMIUM ACCESS EXPERIENCE</div>
@@ -214,22 +149,16 @@ const params=new URLSearchParams(location.search);
 const video=params.get("video");
 const ad1=params.get("ad1");
 const ad2=params.get("ad2");
-
 const generator=document.getElementById("generator");
 const gateway=document.getElementById("gateway");
 
 function validUrl(value){
- try{
-  const u=new URL(value);
-  return u.protocol==="https:"||u.protocol==="http:";
- }catch(e){return false}
+ try{const u=new URL(value);return u.protocol==="https:"||u.protocol==="http:"}
+ catch(e){return false}
 }
 
-if(video&&ad1&&ad2){
- gateway.classList.remove("hidden");
-}else{
- generator.classList.remove("hidden");
-}
+if(video&&ad1&&ad2)gateway.classList.remove("hidden");
+else generator.classList.remove("hidden");
 
 function generateLink(){
  const v=document.getElementById("videoUrl").value.trim();
@@ -237,8 +166,7 @@ function generateLink(){
  const a2=document.getElementById("adUrl2").value.trim();
 
  if(!validUrl(v)||!validUrl(a1)||!validUrl(a2)){
-  document.getElementById("generatorStatus").textContent=
-  "Please enter three valid URLs.";
+  document.getElementById("generatorStatus").textContent="Please enter three valid URLs.";
   return;
  }
 
@@ -256,15 +184,13 @@ function generateLink(){
 
 function copyLink(){
  const field=document.getElementById("generatedLink");
- field.select();
- field.setSelectionRange(0,99999);
+ field.select();field.setSelectionRange(0,99999);
  if(navigator.clipboard&&navigator.clipboard.writeText){
   navigator.clipboard.writeText(field.value).then(()=>{
    document.getElementById("generatorStatus").textContent="Link copied successfully!";
   }).catch(()=>fallbackCopy(field));
  }else fallbackCopy(field);
 }
-
 function fallbackCopy(field){
  document.execCommand("copy");
  document.getElementById("generatorStatus").textContent="Link copied successfully!";
@@ -283,15 +209,12 @@ const b2=document.getElementById("adButton2");
 const bv=document.getElementById("videoButton");
 const statusBox=document.getElementById("status");
 
-function save(){
- sessionStorage.setItem(storageKey,JSON.stringify({step,startedAt}));
-}
+function save(){sessionStorage.setItem(storageKey,JSON.stringify({step,startedAt}))}
 
 function paint(){
  b1.disabled=step!==0||active;
  b2.disabled=step!==1||active;
  bv.disabled=step!==2;
-
  if(step===0)statusBox.textContent="Open the first ad and wait for 5 seconds.";
  if(step===1)statusBox.textContent="First step completed! Now open the second ad.";
  if(step===2)statusBox.textContent="All steps completed. Your video is ready!";
@@ -299,7 +222,6 @@ function paint(){
 
 function openAd(number){
  if(active||(number===1&&step!==0)||(number===2&&step!==1))return;
-
  const url=number===1?ad1:ad2;
  if(!validUrl(url))return;
 
@@ -308,10 +230,7 @@ function openAd(number){
   statusBox.textContent="Please allow pop-ups and try again.";
   return;
  }
-
- active=true;
- startedAt=Date.now();
- save();
+ active=true;startedAt=Date.now();save();
  runCountdown(number);
 }
 
@@ -328,24 +247,18 @@ function runCountdown(number){
 
   if(remaining<=0){
    clearInterval(ticker);
-   active=false;
-   step++;
-   startedAt=0;
-   save();
+   active=false;step++;startedAt=0;save();
    count.textContent="Completed ✓";
    bar.style.width="100%";
    paint();
   }
  }
-
- update();
- ticker=setInterval(update,150);
+ update();ticker=setInterval(update,150);
 }
 
 document.addEventListener("visibilitychange",()=>{
  if(!document.hidden&&active)runCountdown(step+1);
 });
-
 window.addEventListener("pageshow",()=>{
  if(active)runCountdown(step+1);
 });
