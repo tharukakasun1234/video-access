@@ -98,272 +98,303 @@ const params = new URLSearchParams(location.search);
 const video = params.get('video');
 const ad = params.get('ad');
 
-const STORAGE_KEY = 'video_access_state_v5';
+const STORAGE_KEY = 'video_access_state_v6';
 const WAIT_TIME = 5000;
 
-let timerInterval = null;
-let adStartedAt = 0;
+let startedAt = 0;
 let adOpened = false;
 let completed = false;
-let hasLeftPage = false;
-let warningShown = false;
+let leftGateway = false;
+let returnHandled = false;
+let timerInterval = null;
+
+modalClose.onclick = () => {
+ modalBg.style.display = 'none';
+};
 
 function showModal(message) {
-  modalMessage.textContent = message;
-  modalBg.style.display = 'flex';
+ modalMessage.textContent = message;
+ modalBg.style.display = 'flex';
 }
 
-modalClose.addEventListener('click', () => {
-  modalBg.style.display = 'none';
-});
-
 function validURL(value) {
-  try {
-    const url = new URL(value);
-    return ['https:', 'http:'].includes(url.protocol) ? url.href : null;
-  } catch (e) {
-    return null;
-  }
+ try {
+  const u = new URL(value);
+  return ['https:', 'http:'].includes(u.protocol) ? u.href : null;
+ } catch(e) {
+  return null;
+ }
 }
 
 function saveState() {
-  try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
-      startedAt: adStartedAt,
-      opened: adOpened,
-      completed: completed
-    }));
-  } catch (e) {}
+ try {
+  sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+   startedAt,
+   adOpened,
+   completed
+  }));
+ } catch(e) {}
 }
 
-function loadState() {
-  try {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
-    if (!saved) return false;
+function getState() {
+ try {
+  const raw = sessionStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
 
-    const data = JSON.parse(saved);
-    if (!data || !data.startedAt) return false;
+  const data = JSON.parse(raw);
 
-    adStartedAt = data.startedAt;
-    adOpened = !!data.opened;
-    completed = !!data.completed;
-
-    return true;
-  } catch (e) {
-    return false;
+  if (!data || !data.startedAt || !data.adOpened) {
+   return null;
   }
+
+  return data;
+ } catch(e) {
+  return null;
+ }
 }
 
 function clearState() {
-  try {
-    sessionStorage.removeItem(STORAGE_KEY);
-  } catch (e) {}
+ try {
+  sessionStorage.removeItem(STORAGE_KEY);
+ } catch(e) {}
 }
 
 function showGenerator() {
-  app.innerHTML = `
-  <div class="section">
-    <h3 style="text-align:center;color:#00e5ae">LINK GENERATOR</h3>
-    <p class="status">ඔබගේ වීඩියෝ Link එක සාදාගන්න</p>
+ app.innerHTML = `
+ <div class="section">
+  <h3 style="text-align:center;color:#00e5ae">LINK GENERATOR</h3>
+  <p class="status">ඔබගේ වීඩියෝ Link එක සාදාගන්න</p>
 
-    <label>වීඩියෝ Link එක</label>
-    <input id="videoInput" placeholder="https://example.com/video">
+  <label>වීඩියෝ Link එක</label>
+  <input id="videoInput" placeholder="https://example.com/video">
 
-    <label>දැන්වීම් Link එක</label>
-    <input id="adInput" placeholder="https://example.com/ad">
+  <label>දැන්වීම් Link එක</label>
+  <input id="adInput" placeholder="https://example.com/ad">
 
-    <button id="generate">LINK එක සාදන්න ↗</button>
+  <button id="generate">LINK එක සාදන්න ↗</button>
 
-    <div class="output" id="output">
-      <p>ඔබගේ Link එක:</p>
-      <div id="generatedLink"></div>
-      <button id="copy">COPY LINK</button>
-    </div>
-  </div>`;
+  <div class="output" id="output">
+   <p>ඔබගේ Link එක:</p>
+   <div id="generatedLink"></div>
+   <button id="copy">COPY LINK</button>
+  </div>
+ </div>`;
 
-  document.getElementById('generate').onclick = () => {
-    const v = validURL(document.getElementById('videoInput').value.trim());
-    const a = validURL(document.getElementById('adInput').value.trim());
+ document.getElementById('generate').onclick = () => {
+  const v = validURL(document.getElementById('videoInput').value.trim());
+  const a = validURL(document.getElementById('adInput').value.trim());
 
-    if (!v || !a) {
-      showModal('කරුණාකර නිවැරදි Video සහ Ad Links ඇතුළත් කරන්න.');
-      return;
-    }
+  if (!v || !a) {
+   showModal('කරුණාකර නිවැරදි Video සහ Ad Links ඇතුළත් කරන්න.');
+   return;
+  }
 
-    const url = new URL(location.href);
-    url.search = '';
-    url.hash = '';
-    url.searchParams.set('video', v);
-    url.searchParams.set('ad', a);
+  const u = new URL(location.href);
+  u.search = '';
+  u.hash = '';
+  u.searchParams.set('video', v);
+  u.searchParams.set('ad', a);
 
-    document.getElementById('generatedLink').textContent = url.href;
-    document.getElementById('output').style.display = 'block';
+  document.getElementById('generatedLink').textContent = u.href;
+  document.getElementById('output').style.display = 'block';
 
-    document.getElementById('copy').onclick = async () => {
-      try {
-        await navigator.clipboard.writeText(url.href);
-        document.getElementById('copy').textContent = 'COPY කළා ✓';
-      } catch (e) {
-        showModal('Link එක දිගට ඔබා Copy තෝරන්න.');
-      }
-    };
+  document.getElementById('copy').onclick = async () => {
+   try {
+    await navigator.clipboard.writeText(u.href);
+    document.getElementById('copy').textContent = 'COPY කළා ✓';
+   } catch(e) {
+    showModal('Link එක දිගට ඔබා Copy තෝරන්න.');
+   }
   };
+ };
 }
 
 function showGate(v, a) {
-  app.innerHTML = `
-  <div class="section">
-    <h3 style="text-align:center">පියවර 01 — දැන්වීම් Link එක</h3>
-    <p class="status">පහත Button එක Click කර දැන්වීම් Link එක විවෘත කරන්න.</p>
-    <button id="open">AD LINK එක විවෘත කරන්න ↗</button>
+ app.innerHTML = `
+ <div class="section">
+  <h3 style="text-align:center">පියවර 01 — දැන්වීම් Link එක</h3>
+  <p class="status">පහත Button එක Click කර දැන්වීම් Link එක විවෘත කරන්න.</p>
+  <button id="open">AD LINK එක විවෘත කරන්න ↗</button>
+ </div>
+
+ <div class="section">
+  <h3 style="text-align:center">වීඩියෝව Unlock කිරීම</h3>
+  <div class="timer" id="timer">05</div>
+  <div class="bar"><div class="fill" id="fill"></div></div>
+  <p class="status" id="status">AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.</p>
+  <button id="unlock" disabled>🔒 වීඩියෝව Unlock කරන්න</button>
+  <div class="warning" id="warning">
+   ⚠️ තත්පර 5ට පෙර ඔබ නැවත පැමිණ ඇත.
   </div>
+ </div>`;
 
-  <div class="section">
-    <h3 style="text-align:center">වීඩියෝව Unlock කිරීම</h3>
-    <div class="timer" id="timer">05</div>
-    <div class="bar"><div class="fill" id="fill"></div></div>
-    <p class="status" id="status">AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.</p>
-    <button id="unlock" disabled>🔒 වීඩියෝව Unlock කරන්න</button>
-    <div class="warning" id="warning">
-      ⚠️ තත්පර 5ට පෙර ඔබ නැවත පැමිණ ඇත.
-    </div>
-  </div>`;
+ const open = document.getElementById('open');
+ const unlock = document.getElementById('unlock');
+ const timer = document.getElementById('timer');
+ const fill = document.getElementById('fill');
+ const status = document.getElementById('status');
+ const warning = document.getElementById('warning');
 
-  const open = document.getElementById('open');
-  const unlock = document.getElementById('unlock');
-  const timer = document.getElementById('timer');
-  const fill = document.getElementById('fill');
-  const status = document.getElementById('status');
-  const warning = document.getElementById('warning');
+ function finish() {
+  completed = true;
+  adOpened = false;
+  clearInterval(timerInterval);
 
-  function finish() {
-    completed = true;
-    clearInterval(timerInterval);
+  timer.textContent = '✓';
+  fill.style.width = '100%';
+  status.textContent = 'තත්පර 5 සම්පූර්ණයි! දැන් වීඩියෝව නැරඹිය හැකියි.';
 
-    timer.textContent = '✓';
-    fill.style.width = '100%';
-    status.textContent = 'තත්පර 5 සම්පූර්ණයි! දැන් වීඩියෝව නැරඹිය හැකියි.';
+  unlock.disabled = false;
+  unlock.textContent = '▶ වීඩියෝව බලන්න';
 
-    unlock.disabled = false;
-    unlock.textContent = '▶ වීඩියෝව බලන්න';
-    open.disabled = true;
-    warning.style.display = 'none';
+  open.disabled = true;
+  warning.style.display = 'none';
 
-    saveState();
+  saveState();
+ }
+
+ function resetGate() {
+  clearInterval(timerInterval);
+
+  startedAt = 0;
+  adOpened = false;
+  completed = false;
+  leftGateway = false;
+  returnHandled = true;
+
+  clearState();
+
+  timer.textContent = '05';
+  fill.style.width = '0%';
+  status.textContent = 'නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.';
+
+  open.disabled = false;
+  open.textContent = 'AD LINK එක නැවත විවෘත කරන්න ↗';
+
+  unlock.disabled = true;
+  unlock.textContent = '🔒 වීඩියෝව Unlock කරන්න';
+
+  warning.style.display = 'block';
+
+  showModal('තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත!');
+ }
+
+ function updateTimer() {
+  if (!startedAt || completed) return;
+
+  const elapsed = Date.now() - startedAt;
+  const remaining = Math.max(0, WAIT_TIME - elapsed);
+
+  timer.textContent = String(Math.ceil(remaining / 1000)).padStart(2, '0');
+  fill.style.width = Math.min(100, elapsed / WAIT_TIME * 100) + '%';
+
+  if (remaining <= 0) {
+   status.textContent = 'තත්පර 5 සම්පූර්ණයි. Gateway එකට ආපසු එන්න.';
+  }
+ }
+
+ function checkReturn() {
+  if (!adOpened || !leftGateway || returnHandled) return;
+
+  returnHandled = true;
+
+  const elapsed = Date.now() - startedAt;
+
+  if (elapsed >= WAIT_TIME) {
+   finish();
+  } else {
+   resetGate();
+  }
+ }
+
+ open.onclick = () => {
+  if (adOpened || completed) return;
+
+  // Open the ad directly from the user's click.
+  const adPage = window.open(a, '_blank');
+
+  if (!adPage) {
+   showModal('Telegram Browser එක වෙනම Page එක විවෘත කිරීම අවහිර කළා. නැවත උත්සාහ කරන්න.');
+   return;
   }
 
-  function updateTimer() {
-    if (!adStartedAt || completed) return;
+  startedAt = Date.now();
+  adOpened = true;
+  completed = false;
+  leftGateway = false;
+  returnHandled = false;
 
-    const elapsed = Date.now() - adStartedAt;
-    const remaining = Math.max(0, WAIT_TIME - elapsed);
+  saveState();
 
-    timer.textContent = String(Math.ceil(remaining / 1000)).padStart(2, '0');
-    fill.style.width = Math.min(100, elapsed / WAIT_TIME * 100) + '%';
+  open.disabled = true;
+  status.textContent = 'Ad Page එකෙන් ආපසු පැමිණෙන තෙක් රැඳී සිටින්න.';
 
-    if (remaining <= 0) {
-      status.textContent = 'තත්පර 5 සම්පූර්ණයි! Gateway එකට ආපසු එන්න.';
-    }
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 250);
+ };
+
+ // Gateway loses focus when the ad page opens.
+ window.addEventListener('blur', () => {
+  if (adOpened && !completed) {
+   leftGateway = true;
+  }
+ });
+
+ // Gateway receives focus again after returning.
+ window.addEventListener('focus', checkReturn);
+
+ // Mobile / in-app browser visibility changes.
+ document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && adOpened) {
+   leftGateway = true;
   }
 
-  function handleReturn() {
-    if (!adOpened || !hasLeftPage || warningShown) return;
-
-    hasLeftPage = false;
-    warningShown = true;
-
-    const elapsed = Date.now() - adStartedAt;
-
-    if (elapsed >= WAIT_TIME) {
-      finish();
-    } else {
-      clearInterval(timerInterval);
-
-      adStartedAt = 0;
-      adOpened = false;
-      completed = false;
-      clearState();
-
-      timer.textContent = '05';
-      fill.style.width = '0%';
-      status.textContent = 'නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.';
-
-      open.disabled = false;
-      open.textContent = 'AD LINK එක නැවත විවෘත කරන්න ↗';
-      unlock.disabled = true;
-      unlock.textContent = '🔒 වීඩියෝව Unlock කරන්න';
-
-      warning.style.display = 'block';
-
-      showModal('තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත. නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.');
-    }
+  if (document.visibilityState === 'visible') {
+   checkReturn();
   }
+ });
 
-  open.onclick = () => {
-    if (adOpened || completed) return;
+ // Back navigation and BFCache restoration.
+ window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+   const saved = getState();
 
-    // Open the ad in a separate page from the user's direct click.
-    const newPage = window.open(a, '_blank');
-
-    if (!newPage) {
-      showModal('Telegram Browser එක වෙනම Page එක විවෘත කිරීම අවහිර කළා. නැවත උත්සාහ කරන්න.');
-      return;
-    }
-
-    adStartedAt = Date.now();
+   if (saved && saved.adOpened && !saved.completed) {
+    startedAt = saved.startedAt;
     adOpened = true;
-    hasLeftPage = false;
-    warningShown = false;
+    completed = false;
+    leftGateway = true;
+    returnHandled = false;
+    checkReturn();
+   }
+  }
+ });
 
-    saveState();
+ // Restore saved state if the gateway itself reloads.
+ const saved = getState();
 
-    open.disabled = true;
-    status.textContent = 'Ad Page එකෙන් නැවත පැමිණෙන තෙක් රැඳී සිටින්න.';
+ if (saved) {
+  startedAt = saved.startedAt;
+  adOpened = saved.adOpened;
+  completed = false;
 
-    updateTimer();
-    timerInterval = setInterval(updateTimer, 250);
-  };
-
-  // Detect when the ad page takes focus.
-  window.addEventListener('blur', () => {
-    if (adOpened && !completed) {
-      hasLeftPage = true;
-    }
-  });
-
-  // Detect when the user returns to the gateway.
-  window.addEventListener('focus', handleReturn);
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden' && adOpened) {
-      hasLeftPage = true;
-    }
-
-    if (document.visibilityState === 'visible') {
-      handleReturn();
-    }
-  });
-
-  window.addEventListener('pageshow', () => {
-    if (loadState() && adOpened && !completed) {
-      handleReturn();
-    }
-  });
-
-  unlock.onclick = () => {
-    if (!completed) return;
-    clearState();
-    location.assign(v);
-  };
+  if (Date.now() - startedAt >= WAIT_TIME) {
+   // Still require returning from the ad page before unlocking.
+   open.disabled = true;
+   status.textContent = 'Ad Page එකෙන් ආපසු පැමිණෙන්න.';
+  } else {
+   open.disabled = false;
+  }
+ }
 }
 
-const validVideo = validURL(video || '');
-const validAd = validURL(ad || '');
+const v = validURL(video || '');
+const a = validURL(ad || '');
 
-if (validVideo && validAd) {
-  showGate(validVideo, validAd);
+if (v && a) {
+ showGate(v, a);
 } else {
-  showGenerator();
+ showGenerator();
 }
 
 })();
