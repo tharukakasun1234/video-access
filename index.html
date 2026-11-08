@@ -1,166 +1,231 @@
 
 <!DOCTYPE html>
-<html lang="si">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>වීඩියෝ පිවිසුම</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08151c">
+<title>Video Access</title>
 
 <style>
 *{box-sizing:border-box}
-:root{--glass:rgba(255,255,255,.09);--line:rgba(255,255,255,.2)}
+:root{
+ --cyan:#8af9ed;
+ --green:#51f5c3;
+ --glass:rgba(255,255,255,.085);
+ --border:rgba(255,255,255,.19);
+}
 body{
- margin:0;min-height:100vh;min-height:100dvh;overflow:hidden;
+ margin:0;min-height:100vh;min-height:100dvh;
  display:flex;align-items:center;justify-content:center;
- padding:14px;color:#fff;
- font-family:Arial,"Noto Sans Sinhala",sans-serif;
+ padding:12px;overflow-x:hidden;
+ color:#fff;
+ font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
  background:
- radial-gradient(ellipse at 15% 15%,#147b68 0%,transparent 42%),
- radial-gradient(ellipse at 85% 85%,#183b80 0%,transparent 45%),
- linear-gradient(135deg,#071b20,#10152c 65%,#071b20);
+ radial-gradient(ellipse at 12% 15%,rgba(0,255,195,.22),transparent 42%),
+ radial-gradient(ellipse at 90% 85%,rgba(93,111,255,.24),transparent 42%),
+ linear-gradient(145deg,#06151b,#11172b 55%,#07151d);
 }
 body:before,body:after{
- content:"";position:fixed;width:230px;height:230px;border-radius:50%;
- filter:blur(65px);opacity:.35;pointer-events:none;
+ content:"";position:fixed;border-radius:50%;
+ filter:blur(65px);pointer-events:none;opacity:.42;
+ animation:float 9s ease-in-out infinite alternate;
 }
-body:before{background:#00e5ae;top:-90px;right:-70px}
-body:after{background:#477dff;bottom:-100px;left:-80px}
-.container{
- width:100%;max-width:420px;position:relative;z-index:1;
- padding:25px 21px;border:1px solid var(--line);
- border-radius:30px;background:rgba(255,255,255,.075);
- backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
- box-shadow:0 20px 65px #0007,inset 0 1px 1px #ffffff30;
- text-align:center;
+body:before{
+ width:220px;height:220px;background:#00e6ba;
+ top:-100px;right:-70px;
 }
+body:after{
+ width:240px;height:240px;background:#526cff;
+ bottom:-110px;left:-90px;animation-delay:-4s;
+}
+@keyframes float{
+ from{transform:translate(0,0)}
+ to{transform:translate(35px,30px)}
+}
+.wrapper{
+ width:100%;max-width:405px;position:relative;z-index:1;
+}
+.glass{
+ position:relative;overflow:hidden;
+ border:1px solid var(--border);
+ background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.035));
+ backdrop-filter:blur(30px) saturate(160%);
+ -webkit-backdrop-filter:blur(30px) saturate(160%);
+ box-shadow:0 25px 75px rgba(0,0,0,.38),
+ inset 0 1px 1px rgba(255,255,255,.3),
+ inset 0 -1px 1px rgba(255,255,255,.05);
+}
+.card{
+ border-radius:30px;padding:24px 21px 18px;
+}
+.card:before{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(125deg,rgba(255,255,255,.13),transparent 35%,transparent 70%,rgba(255,255,255,.045));
+}
+.content{position:relative;z-index:1;text-align:center}
 .logo{
- width:58px;height:58px;margin:0 auto 12px;border-radius:20px;
- display:grid;place-items:center;font-size:27px;
- background:linear-gradient(145deg,#ffffff35,#ffffff08);
- border:1px solid #ffffff35;
- box-shadow:inset 0 1px 8px #ffffff25,0 8px 25px #0003;
+ width:62px;height:62px;margin:0 auto 12px;
+ border-radius:22px;display:grid;place-items:center;
+ font-size:28px;color:#a6ffec;
+ border:1px solid rgba(255,255,255,.3);
+ background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.035));
+ box-shadow:inset 0 1px 8px #ffffff30,0 8px 25px #0003;
 }
-h1{font-size:23px;margin:5px 0 8px;font-weight:750}
-.sub{font-size:13px;color:#c4d7d7;margin:0 0 20px;line-height:1.7}
-.glass-input{
- width:100%;padding:14px;margin:7px 0;border-radius:15px;
- border:1px solid #ffffff25;background:#ffffff0c;
- color:white;outline:none;font-size:14px;
+.logo span{filter:drop-shadow(0 0 10px #54ffdb)}
+h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
+.subtitle{font-size:12px;color:#b9d1d3;margin:0 0 19px;line-height:1.5}
+.input{
+ width:100%;height:46px;margin:6px 0;padding:0 15px;
+ border-radius:14px;border:1px solid rgba(255,255,255,.17);
+ background:rgba(255,255,255,.075);
+ color:#fff;font-size:13px;outline:none;
+ box-shadow:inset 0 1px 5px #0002;
 }
-.glass-input::placeholder{color:#b8caca}
-.glass-input:focus{border-color:#00e5ae;box-shadow:0 0 0 3px #00e5ae20}
+.input::placeholder{color:#a9bec1}
+.input:focus{
+ border-color:rgba(104,255,218,.7);
+ box-shadow:0 0 0 3px rgba(70,255,208,.1),inset 0 1px 5px #0002;
+}
 .btn{
- width:100%;padding:15px 12px;margin:7px 0;border-radius:17px;
- border:1px solid #ffffff35;color:white;font-size:15px;
- font-weight:700;cursor:pointer;
- background:linear-gradient(135deg,#ffffff25,#ffffff09);
- box-shadow:inset 0 1px 1px #ffffff35,0 8px 20px #0003;
- backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
- transition:.2s;
+ width:100%;min-height:49px;padding:12px 14px;
+ margin:6px 0;border-radius:16px;
+ border:1px solid rgba(255,255,255,.24);
+ color:#f5ffff;font-size:14px;font-weight:700;
+ cursor:pointer;position:relative;overflow:hidden;
+ background:linear-gradient(135deg,rgba(255,255,255,.19),rgba(255,255,255,.055));
+ box-shadow:inset 0 1px 1px #ffffff45,0 8px 20px #0002;
+ backdrop-filter:blur(14px);
+ -webkit-backdrop-filter:blur(14px);
+ transition:transform .2s,background .2s,opacity .2s;
 }
-.btn:active{transform:scale(.97)}
+.btn:before{
+ content:"";position:absolute;top:0;left:-120%;width:70%;height:100%;
+ transform:skewX(-22deg);
+ background:linear-gradient(90deg,transparent,#ffffff35,transparent);
+ transition:left .65s;
+}
+.btn:not(:disabled):hover:before{left:150%}
+.btn:not(:disabled):active{transform:scale(.97)}
 .btn:disabled{opacity:.35;cursor:not-allowed}
-.ad-btn{background:linear-gradient(120deg,#00b99455,#00e5ae18)}
-.video-btn{
- background:linear-gradient(120deg,#00d6a1,#008f86);
- border-color:#ffffff55;color:#041d19;
- box-shadow:0 7px 25px #00d6a144,inset 0 1px 2px #ffffff80;
+.ad-btn{
+ background:linear-gradient(120deg,rgba(38,226,183,.25),rgba(255,255,255,.065));
+ border-color:rgba(101,255,218,.32);
+}
+.primary{
+ color:#06241f;
+ border-color:rgba(255,255,255,.55);
+ background:linear-gradient(125deg,#a3ffe9,#47e5bf 55%,#64d9ec);
+ box-shadow:0 8px 28px rgba(54,242,195,.22),
+ inset 0 1px 2px #ffffffc0;
 }
 .status{
- min-height:37px;margin:12px 0 3px;padding:9px;
- border-radius:13px;background:#ffffff0b;
- color:#d6e9e7;font-size:12px;line-height:1.6;
+ min-height:39px;margin-top:10px;padding:10px 9px;
+ border-radius:13px;
+ border:1px solid rgba(255,255,255,.11);
+ background:rgba(255,255,255,.045);
+ color:#c6dddd;font-size:11px;line-height:1.5;
 }
 .countdown{
- font-size:14px;font-weight:bold;color:#65ffcf;
- margin:10px 0;min-height:20px;
+ min-height:20px;margin:5px 0 3px;
+ color:var(--cyan);font-size:12px;font-weight:750;
+ letter-spacing:.5px;
 }
 .progress{
- height:5px;background:#ffffff18;border-radius:20px;
- overflow:hidden;margin:8px 0 12px;
+ height:4px;margin:0 0 8px;
+ border-radius:20px;overflow:hidden;background:#ffffff15;
 }
 .progress span{
- display:block;height:100%;width:0%;
- background:linear-gradient(90deg,#00e5ae,#8affdc);
- border-radius:20px;transition:width .2s;
+ display:block;width:0;height:100%;
+ border-radius:20px;
+ background:linear-gradient(90deg,#4de9bd,#b0fff1);
+ box-shadow:0 0 12px #4de9bd;
 }
-.footer{font-size:10px;color:#8ca8a7;margin-top:15px}
+.footer{
+ margin-top:15px;color:#8fa9ac;font-size:10px;
+ letter-spacing:1px;
+}
 .hidden{display:none!important}
 @media(max-height:700px){
- .container{padding:17px 18px;border-radius:25px}
- .logo{width:45px;height:45px;font-size:22px;margin-bottom:7px}
- h1{font-size:20px;margin:3px 0 5px}
- .sub{margin-bottom:11px;font-size:12px}
- .btn{padding:12px;margin:5px 0}
- .glass-input{padding:11px;margin:5px 0}
- .status{margin:7px 0 2px}
+ .card{padding:16px 18px 12px;border-radius:26px}
+ .logo{width:45px;height:45px;border-radius:16px;font-size:22px;margin-bottom:7px}
+ h1{font-size:21px;margin-bottom:4px}
+ .subtitle{margin-bottom:10px;font-size:11px}
+ .input{height:39px;margin:4px 0}
+ .btn{min-height:42px;padding:9px;margin:4px 0}
+ .status{margin-top:6px;padding:7px}
  .footer{margin-top:9px}
 }
 </style>
 </head>
 
 <body>
-<div class="container">
- <div class="logo">▶</div>
- <h1>වීඩියෝ පිවිසුම</h1>
- <p class="sub" id="subtitle">වීඩියෝවට පිවිසීමට පහත පියවර අනුගමනය කරන්න</p>
+<div class="wrapper">
+<div class="glass card">
+<div class="content">
 
- <!-- LINK GENERATOR -->
+ <div class="logo"><span>▶</span></div>
+ <h1>Video Access</h1>
+ <p class="subtitle" id="subtitle">Complete the steps below to unlock your video</p>
+
  <section id="generator" class="hidden">
-  <input class="glass-input" id="videoUrl" placeholder="වීඩියෝ සබැඳිය ඇතුළත් කරන්න">
-  <input class="glass-input" id="adUrl1" placeholder="පළමු දැන්වීමේ සබැඳිය">
-  <input class="glass-input" id="adUrl2" placeholder="දෙවන දැන්වීමේ සබැඳිය">
-  <button class="btn video-btn" onclick="generateLink()">සබැඳිය සාදන්න</button>
-  <input class="glass-input hidden" id="generatedLink" readonly>
-  <button class="btn hidden" id="copyBtn" onclick="copyLink()">සබැඳිය පිටපත් කරන්න</button>
-  <div class="status" id="generatorStatus">සබැඳි තුනම ඇතුළත් කරන්න</div>
+  <input class="input" id="videoUrl" placeholder="Enter Video URL">
+  <input class="input" id="adUrl1" placeholder="Enter First Ad URL">
+  <input class="input" id="adUrl2" placeholder="Enter Second Ad URL">
+
+  <button class="btn primary" onclick="generateLink()">✦ Generate Link</button>
+
+  <input class="input hidden" id="generatedLink" readonly>
+  <button class="btn hidden" id="copyBtn" onclick="copyLink()">Copy Link</button>
+
+  <div class="status" id="generatorStatus">Enter all three links to continue.</div>
  </section>
 
- <!-- VIDEO GATEWAY -->
  <section id="gateway" class="hidden">
-  <button class="btn ad-btn" id="adButton1" onclick="openAd(1)">
-   පළමු දැන්වීම බලන්න
-  </button>
 
+  <button class="btn ad-btn" id="adButton1" onclick="openAd(1)">
+   ↗ &nbsp; Watch First Ad
+  </button>
   <div class="countdown" id="countdown1"></div>
   <div class="progress"><span id="progress1"></span></div>
 
   <button class="btn ad-btn" id="adButton2" onclick="openAd(2)" disabled>
-   දෙවන දැන්වීම බලන්න
+   ↗ &nbsp; Watch Second Ad
   </button>
-
   <div class="countdown" id="countdown2"></div>
   <div class="progress"><span id="progress2"></span></div>
 
-  <button class="btn video-btn" id="videoButton" onclick="openVideo()" disabled>
-   වීඩියෝව විවෘත කරන්න
+  <button class="btn primary" id="videoButton" onclick="openVideo()" disabled>
+   ▶ &nbsp; Unlock Video
   </button>
 
   <div class="status" id="status">
-   පළමු දැන්වීම විවෘත කර තත්පර 5ක් රැඳී සිටින්න
+   Open the first ad to get started.
   </div>
  </section>
 
- <div class="footer">ආරක්ෂිත පිවිසුම් පිටුව</div>
+ <div class="footer">PREMIUM ACCESS EXPERIENCE</div>
+</div>
+</div>
 </div>
 
 <script>
-const params = new URLSearchParams(location.search);
-const video = params.get("video");
-const ad1 = params.get("ad1");
-const ad2 = params.get("ad2");
+const params=new URLSearchParams(location.search);
+const video=params.get("video");
+const ad1=params.get("ad1");
+const ad2=params.get("ad2");
 
-const generator = document.getElementById("generator");
-const gateway = document.getElementById("gateway");
+const generator=document.getElementById("generator");
+const gateway=document.getElementById("gateway");
 
 function validUrl(value){
  try{
-  const u = new URL(value);
-  return u.protocol === "https:" || u.protocol === "http:";
+  const u=new URL(value);
+  return u.protocol==="https:"||u.protocol==="http:";
  }catch(e){return false}
 }
 
-if(video && ad1 && ad2){
+if(video&&ad1&&ad2){
  gateway.classList.remove("hidden");
 }else{
  generator.classList.remove("hidden");
@@ -173,32 +238,36 @@ function generateLink(){
 
  if(!validUrl(v)||!validUrl(a1)||!validUrl(a2)){
   document.getElementById("generatorStatus").textContent=
-   "කරුණාකර නිවැරදි සබැඳි තුනම ඇතුළත් කරන්න";
+  "Please enter three valid URLs.";
   return;
  }
 
  const link=location.origin+location.pathname+
-  "?video="+encodeURIComponent(v)+
-  "&ad1="+encodeURIComponent(a1)+
-  "&ad2="+encodeURIComponent(a2);
+ "?video="+encodeURIComponent(v)+
+ "&ad1="+encodeURIComponent(a1)+
+ "&ad2="+encodeURIComponent(a2);
 
  const output=document.getElementById("generatedLink");
  output.value=link;
  output.classList.remove("hidden");
  document.getElementById("copyBtn").classList.remove("hidden");
- document.getElementById("generatorStatus").textContent="සබැඳිය සාර්ථකව සකස් කළා";
+ document.getElementById("generatorStatus").textContent="Your link is ready!";
 }
 
 function copyLink(){
  const field=document.getElementById("generatedLink");
  field.select();
  field.setSelectionRange(0,99999);
- navigator.clipboard?.writeText(field.value).then(()=>{
-  document.getElementById("generatorStatus").textContent="සබැඳිය පිටපත් කළා";
- }).catch(()=>{
-  document.execCommand("copy");
-  document.getElementById("generatorStatus").textContent="සබැඳිය පිටපත් කළා";
- });
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(field.value).then(()=>{
+   document.getElementById("generatorStatus").textContent="Link copied successfully!";
+  }).catch(()=>fallbackCopy(field));
+ }else fallbackCopy(field);
+}
+
+function fallbackCopy(field){
+ document.execCommand("copy");
+ document.getElementById("generatorStatus").textContent="Link copied successfully!";
 }
 
 const storageKey="video_access_"+location.search;
@@ -206,7 +275,7 @@ let saved={};
 try{saved=JSON.parse(sessionStorage.getItem(storageKey)||"{}")}catch(e){}
 let step=saved.step||0;
 let startedAt=saved.startedAt||0;
-let active=false;
+let active=!!startedAt&&step<2;
 let ticker=null;
 
 const b1=document.getElementById("adButton1");
@@ -222,22 +291,21 @@ function paint(){
  b1.disabled=step!==0||active;
  b2.disabled=step!==1||active;
  bv.disabled=step!==2;
- if(step===0) statusBox.textContent="පළමු දැන්වීම විවෘත කර තත්පර 5ක් රැඳී සිටින්න";
- if(step===1) statusBox.textContent="දැන් දෙවන දැන්වීම විවෘත කරන්න";
- if(step===2) statusBox.textContent="දැන් ඔබට වීඩියෝව විවෘත කළ හැකියි";
+
+ if(step===0)statusBox.textContent="Open the first ad and wait for 5 seconds.";
+ if(step===1)statusBox.textContent="First step completed! Now open the second ad.";
+ if(step===2)statusBox.textContent="All steps completed. Your video is ready!";
 }
 
 function openAd(number){
- if(active || (number===1 && step!==0) || (number===2 && step!==1))return;
+ if(active||(number===1&&step!==0)||(number===2&&step!==1))return;
 
  const url=number===1?ad1:ad2;
  if(!validUrl(url))return;
 
- // Open the advertisement separately from the gateway page.
  const newPage=window.open(url,"_blank");
-
  if(!newPage){
-  statusBox.textContent="දැන්වීම විවෘත කිරීමට අවසර දෙන්න හෝ නැවත උත්සාහ කරන්න";
+  statusBox.textContent="Please allow pop-ups and try again.";
   return;
  }
 
@@ -264,7 +332,7 @@ function runCountdown(number){
    step++;
    startedAt=0;
    save();
-   count.textContent="සම්පූර්ණයි ✓";
+   count.textContent="Completed ✓";
    bar.style.width="100%";
    paint();
   }
@@ -275,10 +343,7 @@ function runCountdown(number){
 }
 
 document.addEventListener("visibilitychange",()=>{
- if(!document.hidden && active){
-  const number=step+1;
-  runCountdown(number);
- }
+ if(!document.hidden&&active)runCountdown(step+1);
 });
 
 window.addEventListener("pageshow",()=>{
@@ -286,13 +351,13 @@ window.addEventListener("pageshow",()=>{
 });
 
 function openVideo(){
- if(step!==2 || !validUrl(video))return;
+ if(step!==2||!validUrl(video))return;
  location.href=video;
 }
 
-if(video && ad1 && ad2){
+if(video&&ad1&&ad2){
  paint();
- if(active && startedAt)runCountdown(step+1);
+ if(active&&startedAt)runCountdown(step+1);
 }
 </script>
 </body>
