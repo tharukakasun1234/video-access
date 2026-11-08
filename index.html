@@ -51,6 +51,7 @@ button:disabled{background:#34443d;color:#a0b0a8;cursor:not-allowed}
 }
 .output{display:none;overflow-wrap:anywhere;color:#9df5d0;font-size:12px;margin-top:15px}
 .small{text-align:center;color:#69877b;font-size:11px;margin-top:22px}
+
 .modal-bg{
  display:none;position:fixed;inset:0;background:#000c;
  align-items:center;justify-content:center;padding:20px;z-index:9999
@@ -68,22 +69,19 @@ button:disabled{background:#34443d;color:#a0b0a8;cursor:not-allowed}
 
 <body>
 <div class="container">
-<div class="card">
-<div class="logo">▶</div>
-<h1>VIDEO ACCESS</h1>
-<div class="subtitle">PREMIUM VIDEO GATEWAY</div>
-<div id="app"></div>
-<div class="small">VIDEO ACCESS SYSTEM ❤️</div>
-</div>
+ <div class="card">
+  <div class="logo">▶</div>
+  <h1>VIDEO ACCESS</h1>
+  <div class="subtitle">PREMIUM VIDEO GATEWAY</div>
+  <div id="app"></div>
+  <div class="small">VIDEO ACCESS SYSTEM ❤️</div>
+ </div>
 </div>
 
 <div class="modal-bg" id="modalBg">
  <div class="modal">
   <h2>⚠️ අවවාදයයි!</h2>
-  <p id="modalMessage">
-   තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත.
-   නැවත දැන්වීම් Link එක විවෘත කරන්න.
-  </p>
+  <p id="modalMessage"></p>
   <button id="modalClose">හරි</button>
  </div>
 </div>
@@ -94,7 +92,7 @@ const params=new URLSearchParams(location.search);
 const video=params.get('video');
 const ad=params.get('ad');
 
-const STORAGE_KEY='video_access_timer_v2';
+const STORAGE_KEY='video_access_timer_v3';
 
 function validURL(s){
  try{
@@ -152,7 +150,7 @@ function showGenerator(){
     await navigator.clipboard.writeText(u.href);
     document.getElementById('copy').textContent='COPY කළා ✓';
    }catch(e){
-    showModal('Link එක පහත ඇති කොටසෙන් Copy කරන්න.');
+    showModal('Link එක Copy කිරීමට එය දිගට ඔබා Copy තෝරන්න.');
    }
   };
  };
@@ -170,75 +168,113 @@ function showGate(v,a){
  <h3 style="text-align:center">වීඩියෝව Unlock කිරීම</h3>
  <div class="timer" id="timer">05</div>
  <div class="bar"><div class="fill" id="fill"></div></div>
- <p class="status" id="status">AD Link එක විවෘත කළ පසු තත්පර 5 ගණනය වේ.</p>
+ <p class="status" id="status">AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.</p>
  <button id="unlock" disabled>🔒 වීඩියෝව Unlock කරන්න</button>
+ <div class="warning" id="warning">
+ ⚠️ තත්පර 5ට පෙර ඔබ නැවත පැමිණ ඇත.
+ </div>
  </div>`;
 
  const timer=document.getElementById('timer');
  const fill=document.getElementById('fill');
  const status=document.getElementById('status');
+ const warning=document.getElementById('warning');
  const unlock=document.getElementById('unlock');
  const open=document.getElementById('open');
 
  let done=false;
+ let interval=null;
 
  function finish(){
   if(done)return;
   done=true;
+  clearInterval(interval);
   timer.textContent='✓';
   fill.style.width='100%';
   status.textContent='තත්පර 5 සම්පූර්ණයි! දැන් වීඩියෝව නැරඹිය හැකියි.';
   unlock.disabled=false;
   unlock.textContent='▶ වීඩියෝව බලන්න';
+  warning.style.display='none';
   open.disabled=true;
  }
 
- function checkReturn(){
-  const saved=sessionStorage.getItem(STORAGE_KEY);
-  if(!saved)return;
+ function resetGate(){
+  clearInterval(interval);
+  timer.textContent='05';
+  fill.style.width='0%';
+  status.textContent='නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.';
+  unlock.disabled=true;
+  unlock.textContent='🔒 වීඩියෝව Unlock කරන්න';
+  open.disabled=false;
+  open.textContent='AD LINK එක නැවත විවෘත කරන්න ↗';
+  warning.style.display='block';
+ }
 
-  sessionStorage.removeItem(STORAGE_KEY);
+ function checkReturn(){
+  let saved;
+
+  try{
+   saved=sessionStorage.getItem(STORAGE_KEY);
+  }catch(e){return}
+
+  if(!saved)return;
 
   let data;
   try{
    data=JSON.parse(saved);
   }catch(e){
+   sessionStorage.removeItem(STORAGE_KEY);
    return;
   }
 
   if(!data || !data.started)return;
 
   const elapsed=Date.now()-data.started;
-  const remaining=5000-elapsed;
 
-  if(remaining<=0){
+  if(elapsed>=5000){
+   sessionStorage.removeItem(STORAGE_KEY);
    finish();
   }else{
-   timer.textContent='05';
-   fill.style.width='0%';
-   status.textContent='තත්පර 5ට පෙර නැවත පැමිණියා. නැවත උත්සාහ කරන්න.';
-   showModal('තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත. නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.');
+   sessionStorage.removeItem(STORAGE_KEY);
+   resetGate();
+   showModal(
+    'තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත. නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.'
+   );
   }
  }
 
  open.onclick=()=>{
   if(done)return;
 
-  sessionStorage.setItem(STORAGE_KEY,JSON.stringify({
+  const data={
    started:Date.now()
-  }));
+  };
 
-  location.href=a;
+  try{
+   sessionStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  }catch(e){
+   showModal('Timer එක ආරම්භ කිරීමට Browser Storage අවශ්‍යයි.');
+   return;
+  }
+
+  // Same Telegram in-app browser tab
+  location.assign(a);
  };
 
  unlock.onclick=()=>{
   if(done){
    sessionStorage.removeItem(STORAGE_KEY);
-   location.href=v;
+   location.assign(v);
   }
  };
 
+ // Normal page load and refresh
  checkReturn();
+
+ // Back navigation from an ad page, including BFCache restoration
+ window.addEventListener('pageshow',()=>{
+  checkReturn();
+ });
 }
 
 const v=validURL(video||'');
