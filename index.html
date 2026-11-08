@@ -93,6 +93,19 @@ h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
 .countdown{min-height:20px;margin:5px 0 3px;color:var(--cyan);font-size:12px;font-weight:750;letter-spacing:.5px}
 .progress{height:4px;margin:0 0 8px;border-radius:20px;overflow:hidden;background:#ffffff15}
 .progress span{display:block;width:0;height:100%;border-radius:20px;background:linear-gradient(90deg,#4de9bd,#b0fff1);box-shadow:0 0 12px #4de9bd}
+.unlock-count{
+ margin:12px 0 5px;padding:12px;border-radius:15px;
+ border:1px solid rgba(101,255,218,.25);
+ background:linear-gradient(120deg,rgba(38,226,183,.13),rgba(255,255,255,.045));
+ box-shadow:inset 0 1px 1px #ffffff18;
+}
+.unlock-count .count-label{
+ font-size:10px;color:#a9c8c9;letter-spacing:1.2px;font-weight:700;
+}
+.unlock-count .count-number{
+ margin-top:5px;font-size:25px;font-weight:800;color:#8af9ed;
+ text-shadow:0 0 15px #51f5c355;
+}
 .footer{margin-top:15px;color:#8fa9ac;font-size:10px;letter-spacing:1px}
 .hidden{display:none!important}
 @media(max-height:700px){
@@ -103,6 +116,8 @@ h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
  .input{height:39px;margin:4px 0}
  .btn{min-height:42px;padding:9px;margin:4px 0}
  .status{margin-top:6px;padding:7px}
+ .unlock-count{margin:7px 0 3px;padding:8px}
+ .unlock-count .count-number{font-size:21px;margin-top:2px}
  .footer{margin-top:9px}
 }
 </style>
@@ -128,6 +143,12 @@ h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
  </section>
 
  <section id="gateway" class="hidden">
+
+  <div class="unlock-count">
+   <div class="count-label">VIDEO UNLOCK COUNT</div>
+   <div class="count-number" id="unlockCount">Loading...</div>
+  </div>
+
   <button class="btn ad-btn" id="adButton1" onclick="openAd(1)">↗ &nbsp; Watch First Ad</button>
   <div class="countdown" id="countdown1"></div>
   <div class="progress"><span id="progress1"></span></div>
@@ -146,6 +167,8 @@ h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
 </div>
 
 <script>
+const API_URL="https://video-count-api.worldcyber137.workers.dev";
+
 const params=new URLSearchParams(location.search);
 const video=params.get("video");
 const ad1=params.get("ad1");
@@ -201,6 +224,48 @@ function copyLink(){
 function fallbackCopy(field){
  document.execCommand("copy");
  document.getElementById("generatorStatus").textContent="Link copied successfully!";
+}
+
+/* Persistent per-link unlock count */
+const countDisplay=document.getElementById("unlockCount");
+
+async function getUnlockCount(){
+ try{
+  const query=new URLSearchParams({
+   video:video,
+   ad1:ad1,
+   ad2:ad2
+  });
+
+  const res=await fetch(API_URL+"/api/count?"+query.toString());
+  if(!res.ok)throw new Error("Count request failed");
+
+  const data=await res.json();
+  countDisplay.textContent=Number(data.count||0).toLocaleString();
+ }catch(error){
+  countDisplay.textContent="Unavailable";
+ }
+}
+
+async function increaseUnlockCount(){
+ try{
+  const res=await fetch(API_URL+"/api/unlock",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({
+    video:video,
+    ad1:ad1,
+    ad2:ad2
+   })
+  });
+
+  if(!res.ok)throw new Error("Unlock count failed");
+
+  const data=await res.json();
+  countDisplay.textContent=Number(data.count||0).toLocaleString();
+ }catch(error){
+  countDisplay.textContent="Update failed";
+ }
 }
 
 const storageKey="video_access_"+location.search;
@@ -287,24 +352,35 @@ window.addEventListener("pageshow",()=>{
  if(active)runCountdown(step+1);
 });
 
-/* Telegram bot link redirect */
+/* Telegram bot link + count update */
+let unlockClicked=false;
+
 function openVideo(){
- if(step!==2||!validUrl(video))return;
+ if(step!==2||!validUrl(video)||unlockClicked)return;
+
+ unlockClicked=true;
+ bv.disabled=true;
 
  let destination=video.trim();
 
- // Normalize telegram.me links to t.me
  destination=destination.replace(
   /^https?:\/\/telegram\.me\//i,
   "https://t.me/"
  );
 
- // Open Telegram deep link
+ // Open Telegram link directly from the button click
  window.open(destination,"_blank");
+
+ // Save this click in the database
+ increaseUnlockCount().finally(()=>{
+  unlockClicked=false;
+  bv.disabled=false;
+ });
 }
 
 if(video&&ad1&&ad2){
  paint();
+ getUnlockCount();
  if(active&&startedAt)runCountdown(step+1);
 }
 </script>
