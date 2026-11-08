@@ -3,513 +3,297 @@
 <html lang="si">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#071512">
-<title>VIDEO ACCESS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>වීඩියෝ පිවිසුම</title>
 
 <style>
 *{box-sizing:border-box}
-
+:root{--glass:rgba(255,255,255,.09);--line:rgba(255,255,255,.2)}
 body{
- margin:0;
- min-height:100vh;
- padding:22px;
- display:flex;
- align-items:center;
- justify-content:center;
- font-family:Arial,sans-serif;
- color:white;
+ margin:0;min-height:100vh;min-height:100dvh;overflow:hidden;
+ display:flex;align-items:center;justify-content:center;
+ padding:14px;color:#fff;
+ font-family:Arial,"Noto Sans Sinhala",sans-serif;
  background:
- radial-gradient(ellipse at 15% 10%,#126451 0%,transparent 45%),
- radial-gradient(ellipse at 90% 90%,#123c58 0%,transparent 45%),
- #050d0c;
+ radial-gradient(ellipse at 15% 15%,#147b68 0%,transparent 42%),
+ radial-gradient(ellipse at 85% 85%,#183b80 0%,transparent 45%),
+ linear-gradient(135deg,#071b20,#10152c 65%,#071b20);
 }
-
-.container{width:100%;max-width:470px}
-
-.card{
- padding:27px;
- border-radius:28px;
- background:rgba(255,255,255,.075);
- border:1px solid rgba(255,255,255,.18);
- box-shadow:0 20px 70px #0008;
- backdrop-filter:blur(25px);
- -webkit-backdrop-filter:blur(25px);
+body:before,body:after{
+ content:"";position:fixed;width:230px;height:230px;border-radius:50%;
+ filter:blur(65px);opacity:.35;pointer-events:none;
 }
-
+body:before{background:#00e5ae;top:-90px;right:-70px}
+body:after{background:#477dff;bottom:-100px;left:-80px}
+.container{
+ width:100%;max-width:420px;position:relative;z-index:1;
+ padding:25px 21px;border:1px solid var(--line);
+ border-radius:30px;background:rgba(255,255,255,.075);
+ backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+ box-shadow:0 20px 65px #0007,inset 0 1px 1px #ffffff30;
+ text-align:center;
+}
 .logo{
- text-align:center;
- font-size:48px;
- color:#65ffe0;
- text-shadow:0 0 25px #00e5ae88;
+ width:58px;height:58px;margin:0 auto 12px;border-radius:20px;
+ display:grid;place-items:center;font-size:27px;
+ background:linear-gradient(145deg,#ffffff35,#ffffff08);
+ border:1px solid #ffffff35;
+ box-shadow:inset 0 1px 8px #ffffff25,0 8px 25px #0003;
 }
-
-h1{
- text-align:center;
- font-size:27px;
- letter-spacing:3px;
- margin:10px 0;
- color:#b9fff0;
+h1{font-size:23px;margin:5px 0 8px;font-weight:750}
+.sub{font-size:13px;color:#c4d7d7;margin:0 0 20px;line-height:1.7}
+.glass-input{
+ width:100%;padding:14px;margin:7px 0;border-radius:15px;
+ border:1px solid #ffffff25;background:#ffffff0c;
+ color:white;outline:none;font-size:14px;
 }
-
-.subtitle{
- text-align:center;
- color:#a2c9bd;
- font-size:11px;
- letter-spacing:3px;
- margin-bottom:27px;
+.glass-input::placeholder{color:#b8caca}
+.glass-input:focus{border-color:#00e5ae;box-shadow:0 0 0 3px #00e5ae20}
+.btn{
+ width:100%;padding:15px 12px;margin:7px 0;border-radius:17px;
+ border:1px solid #ffffff35;color:white;font-size:15px;
+ font-weight:700;cursor:pointer;
+ background:linear-gradient(135deg,#ffffff25,#ffffff09);
+ box-shadow:inset 0 1px 1px #ffffff35,0 8px 20px #0003;
+ backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);
+ transition:.2s;
 }
-
-.section{
- padding:19px;
- margin-top:15px;
- border-radius:20px;
- background:rgba(255,255,255,.065);
- border:1px solid rgba(255,255,255,.14);
- box-shadow:inset 0 1px 1px #ffffff15;
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.ad-btn{background:linear-gradient(120deg,#00b99455,#00e5ae18)}
+.video-btn{
+ background:linear-gradient(120deg,#00d6a1,#008f86);
+ border-color:#ffffff55;color:#041d19;
+ box-shadow:0 7px 25px #00d6a144,inset 0 1px 2px #ffffff80;
 }
-
-label{
- display:block;
- color:#b8e9dc;
- font-size:13px;
- margin:13px 0 7px;
-}
-
-input{
- width:100%;
- padding:14px;
- border-radius:12px;
- background:rgba(0,0,0,.28);
- border:1px solid #ffffff25;
- color:white;
- outline:none;
- font-size:14px;
-}
-
-input:focus{border-color:#55f4d0}
-
-button{
- width:100%;
- padding:15px;
- margin-top:12px;
- border:1px solid #ffffff30;
- border-radius:14px;
- background:linear-gradient(120deg,#00d9ad,#73ffe0);
- color:#03251d;
- font-weight:bold;
- font-size:14px;
- cursor:pointer;
- transition:.25s;
-}
-
-button:not(:disabled):active{transform:scale(.97)}
-
-button:disabled{
- background:rgba(255,255,255,.08);
- color:#80938b;
- border-color:#ffffff12;
- cursor:not-allowed;
-}
-
 .status{
- text-align:center;
- font-size:12px;
- line-height:1.7;
- color:#b3d1c7;
- margin:8px 0;
+ min-height:37px;margin:12px 0 3px;padding:9px;
+ border-radius:13px;background:#ffffff0b;
+ color:#d6e9e7;font-size:12px;line-height:1.6;
 }
-
-.step{
- display:flex;
- align-items:center;
- justify-content:space-between;
- gap:10px;
+.countdown{
+ font-size:14px;font-weight:bold;color:#65ffcf;
+ margin:10px 0;min-height:20px;
 }
-
-.step h3{
- margin:0;
- font-size:15px;
+.progress{
+ height:5px;background:#ffffff18;border-radius:20px;
+ overflow:hidden;margin:8px 0 12px;
 }
-
-.badge{
- padding:6px 10px;
- border-radius:30px;
- font-size:10px;
- background:#ffffff12;
- color:#a6b8b1;
- border:1px solid #ffffff20;
+.progress span{
+ display:block;height:100%;width:0%;
+ background:linear-gradient(90deg,#00e5ae,#8affdc);
+ border-radius:20px;transition:width .2s;
 }
-
-.badge.active{
- background:#00d9ad20;
- color:#6dffdf;
- border-color:#00d9ad66;
+.footer{font-size:10px;color:#8ca8a7;margin-top:15px}
+.hidden{display:none!important}
+@media(max-height:700px){
+ .container{padding:17px 18px;border-radius:25px}
+ .logo{width:45px;height:45px;font-size:22px;margin-bottom:7px}
+ h1{font-size:20px;margin:3px 0 5px}
+ .sub{margin-bottom:11px;font-size:12px}
+ .btn{padding:12px;margin:5px 0}
+ .glass-input{padding:11px;margin:5px 0}
+ .status{margin:7px 0 2px}
+ .footer{margin-top:9px}
 }
-
-.timer{
- text-align:center;
- font-size:35px;
- font-weight:bold;
- color:#75ffe0;
- margin:10px;
-}
-
-.bar{
- height:6px;
- border-radius:20px;
- background:#ffffff18;
- overflow:hidden;
- margin-top:12px;
-}
-
-.fill{
- height:100%;
- width:0;
- background:#55f5d2;
- transition:width .2s linear;
-}
-
-.output{
- display:none;
- margin-top:15px;
- color:#a5ffe7;
- overflow-wrap:anywhere;
- font-size:12px;
-}
-
-.small{
- text-align:center;
- color:#91b6a9;
- font-size:10px;
- margin-top:25px;
- letter-spacing:2px;
-}
-
 </style>
 </head>
 
 <body>
 <div class="container">
-<div class="card">
+ <div class="logo">▶</div>
+ <h1>වීඩියෝ පිවිසුම</h1>
+ <p class="sub" id="subtitle">වීඩියෝවට පිවිසීමට පහත පියවර අනුගමනය කරන්න</p>
 
-<div class="logo">▶</div>
-<h1>VIDEO ACCESS</h1>
-<div class="subtitle">PREMIUM VIDEO GATEWAY</div>
+ <!-- LINK GENERATOR -->
+ <section id="generator" class="hidden">
+  <input class="glass-input" id="videoUrl" placeholder="වීඩියෝ සබැඳිය ඇතුළත් කරන්න">
+  <input class="glass-input" id="adUrl1" placeholder="පළමු දැන්වීමේ සබැඳිය">
+  <input class="glass-input" id="adUrl2" placeholder="දෙවන දැන්වීමේ සබැඳිය">
+  <button class="btn video-btn" onclick="generateLink()">සබැඳිය සාදන්න</button>
+  <input class="glass-input hidden" id="generatedLink" readonly>
+  <button class="btn hidden" id="copyBtn" onclick="copyLink()">සබැඳිය පිටපත් කරන්න</button>
+  <div class="status" id="generatorStatus">සබැඳි තුනම ඇතුළත් කරන්න</div>
+ </section>
 
-<div id="app"></div>
+ <!-- VIDEO GATEWAY -->
+ <section id="gateway" class="hidden">
+  <button class="btn ad-btn" id="adButton1" onclick="openAd(1)">
+   පළමු දැන්වීම බලන්න
+  </button>
 
-<div class="small">LIQUID GLASS EXPERIENCE ❤️</div>
+  <div class="countdown" id="countdown1"></div>
+  <div class="progress"><span id="progress1"></span></div>
 
-</div>
+  <button class="btn ad-btn" id="adButton2" onclick="openAd(2)" disabled>
+   දෙවන දැන්වීම බලන්න
+  </button>
+
+  <div class="countdown" id="countdown2"></div>
+  <div class="progress"><span id="progress2"></span></div>
+
+  <button class="btn video-btn" id="videoButton" onclick="openVideo()" disabled>
+   වීඩියෝව විවෘත කරන්න
+  </button>
+
+  <div class="status" id="status">
+   පළමු දැන්වීම විවෘත කර තත්පර 5ක් රැඳී සිටින්න
+  </div>
+ </section>
+
+ <div class="footer">ආරක්ෂිත පිවිසුම් පිටුව</div>
 </div>
 
 <script>
-(() => {
-'use strict';
+const params = new URLSearchParams(location.search);
+const video = params.get("video");
+const ad1 = params.get("ad1");
+const ad2 = params.get("ad2");
 
-const app=document.getElementById('app');
-const params=new URLSearchParams(location.search);
+const generator = document.getElementById("generator");
+const gateway = document.getElementById("gateway");
 
-const video=params.get('video');
-const ad1=params.get('ad1');
-const ad2=params.get('ad2');
-
-const KEY='liquid_video_access_v1';
-
-function validURL(value){
+function validUrl(value){
  try{
-  const u=new URL(value);
-  return ['https:','http:'].includes(u.protocol)?u.href:null;
- }catch(e){return null;}
+  const u = new URL(value);
+  return u.protocol === "https:" || u.protocol === "http:";
+ }catch(e){return false}
 }
 
-function showMessage(message){
- alert(message);
-}
-
-function saveState(state){
- try{
-  sessionStorage.setItem(KEY,JSON.stringify(state));
- }catch(e){}
-}
-
-function getState(){
- try{
-  return JSON.parse(sessionStorage.getItem(KEY)) || {};
- }catch(e){return {};}
-}
-
-function showGenerator(){
-
- app.innerHTML=`
- <div class="section">
-  <h3 style="text-align:center;color:#8dffe5">CREATE VIDEO LINK</h3>
-  <p class="status">ඔබගේ Video සහ Ad Links ඇතුළත් කරන්න</p>
-
-  <label>VIDEO URL</label>
-  <input id="videoInput" placeholder="https://example.com/video">
-
-  <label>ADVERTISEMENT 01 URL</label>
-  <input id="ad1Input" placeholder="https://example.com/ad1">
-
-  <label>ADVERTISEMENT 02 URL</label>
-  <input id="ad2Input" placeholder="https://example.com/ad2">
-
-  <button id="generate">GENERATE LINK ↗</button>
-
-  <div class="output" id="output">
-   <p>YOUR VIDEO LINK</p>
-   <div id="result"></div>
-   <button id="copy">COPY LINK</button>
-  </div>
- </div>`;
-
- document.getElementById('generate').onclick=()=>{
-  const v=validURL(document.getElementById('videoInput').value.trim());
-  const a1=validURL(document.getElementById('ad1Input').value.trim());
-  const a2=validURL(document.getElementById('ad2Input').value.trim());
-
-  if(!v||!a1||!a2){
-   showMessage('කරුණාකර Links තුනම නිවැරදිව ඇතුළත් කරන්න.');
-   return;
-  }
-
-  const u=new URL(location.href);
-  u.search='';
-  u.hash='';
-
-  u.searchParams.set('video',v);
-  u.searchParams.set('ad1',a1);
-  u.searchParams.set('ad2',a2);
-
-  document.getElementById('result').textContent=u.href;
-  document.getElementById('output').style.display='block';
-
-  document.getElementById('copy').onclick=async()=>{
-   try{
-    await navigator.clipboard.writeText(u.href);
-    document.getElementById('copy').textContent='COPIED ✓';
-   }catch(e){
-    showMessage('Link එක දිගට ඔබා Copy කරන්න.');
-   }
-  };
- };
-}
-
-function showGate(v,a1,a2){
-
- let state=getState();
-
- if(state.link!==location.href){
-  state={link:location.href,step:0,started:0};
-  saveState(state);
- }
-
- let step=Number(state.step)||0;
- let started=Number(state.started)||0;
-
- app.innerHTML=`
- <div class="section">
-  <div class="step">
-   <h3>01 — ADVERTISEMENT</h3>
-   <span class="badge" id="badge1">LOCKED</span>
-  </div>
-  <button id="adButton1">↗ OPEN AD 01</button>
-  <div class="status" id="status1">පළමු දැන්වීම විවෘත කරන්න</div>
-  <div class="timer" id="timer1"></div>
-  <div class="bar"><div class="fill" id="fill1"></div></div>
- </div>
-
- <div class="section">
-  <div class="step">
-   <h3>02 — ADVERTISEMENT</h3>
-   <span class="badge" id="badge2">LOCKED</span>
-  </div>
-  <button id="adButton2" disabled>🔒 OPEN AD 02</button>
-  <div class="status" id="status2">පළමු පියවර සම්පූර්ණ කරන්න</div>
-  <div class="timer" id="timer2"></div>
-  <div class="bar"><div class="fill" id="fill2"></div></div>
- </div>
-
- <div class="section">
-  <div class="step">
-   <h3>VIDEO ACCESS</h3>
-   <span class="badge" id="badgeVideo">LOCKED</span>
-  </div>
-  <button id="videoButton" disabled>🔒 WATCH VIDEO</button>
-  <p class="status" id="videoStatus">දැන්වීම් දෙකම සම්පූර්ණ කරන්න</p>
- </div>`;
-
- const b1=document.getElementById('adButton1');
- const b2=document.getElementById('adButton2');
- const bv=document.getElementById('videoButton');
-
- const t1=document.getElementById('timer1');
- const t2=document.getElementById('timer2');
- const f1=document.getElementById('fill1');
- const f2=document.getElementById('fill2');
-
- const s1=document.getElementById('status1');
- const s2=document.getElementById('status2');
-
- let interval=null;
-
- function store(){
-  state.link=location.href;
-  state.step=step;
-  state.started=started;
-  saveState(state);
- }
-
- function paint(){
-
-  b1.disabled=step!==0;
-  b2.disabled=step!==1;
-  bv.disabled=step!==2;
-
-  document.getElementById('badge1').textContent=
-   step>=1?'COMPLETED':step===0?'READY':'LOCKED';
-
-  document.getElementById('badge1').className=
-   'badge '+(step>=1?'active':'');
-
-  document.getElementById('badge2').textContent=
-   step>=2?'COMPLETED':step===1?'READY':'LOCKED';
-
-  document.getElementById('badge2').className=
-   'badge '+(step>=2?'active':'');
-
-  document.getElementById('badgeVideo').textContent=
-   step===2?'UNLOCKED':'LOCKED';
-
-  if(step>=1){
-   b1.textContent='✓ AD 01 COMPLETED';
-   t1.textContent='✓';
-   f1.style.width='100%';
-   s1.textContent='පළමු දැන්වීම සම්පූර්ණයි';
-  }
-
-  if(step>=2){
-   b2.textContent='✓ AD 02 COMPLETED';
-   t2.textContent='✓';
-   f2.style.width='100%';
-   s2.textContent='දෙවැනි දැන්වීම සම්පූර්ණයි';
-   bv.textContent='▶ WATCH VIDEO';
-   document.getElementById('videoStatus').textContent=
-    'ඔබගේ වීඩියෝව දැන් නැරඹිය හැකියි!';
-  }
- }
-
- function startCountdown(){
-
-  clearInterval(interval);
-
-  function tick(){
-
-   const elapsed=Date.now()-started;
-   const remaining=Math.max(0,5000-elapsed);
-   const seconds=Math.ceil(remaining/1000);
-
-   const timer=step===0?t1:t2;
-   const fill=step===0?f1:f2;
-   const status=step===0?s1:s2;
-
-   timer.textContent=String(seconds).padStart(2,'0');
-   fill.style.width=Math.min(100,elapsed/5000*100)+'%';
-
-   if(remaining<=0){
-    clearInterval(interval);
-
-    step++;
-    started=0;
-    store();
-    paint();
-
-    if(step===1){
-     b2.disabled=false;
-     s2.textContent='දැන් දෙවැනි දැන්වීම විවෘත කරන්න';
-    }
-
-    if(step===2){
-     bv.disabled=false;
-     document.getElementById('videoStatus').textContent=
-      'දැන් වීඩියෝව නැරඹිය හැකියි!';
-    }
-   }else{
-    status.textContent='කරුණාකර තත්පර 5ක් රැඳී සිටින්න.';
-   }
-  }
-
-  tick();
-  interval=setInterval(tick,200);
- }
-
- function openAd(url){
-
-  if(started||step>=2)return;
-
-  // Direct user-click opens the ad in a separate page.
-  const page=window.open(url,'_blank');
-
-  if(!page){
-   showMessage('Telegram Browser එක Page එක විවෘත කිරීම අවහිර කළා. නැවත උත්සාහ කරන්න.');
-   return;
-  }
-
-  started=Date.now();
-  store();
-
-  if(step===0){
-   b1.disabled=true;
-   s1.textContent='පළමු දැන්වීම විවෘත කර ඇත.';
-  }else{
-   b2.disabled=true;
-   s2.textContent='දෙවැනි දැන්වීම විවෘත කර ඇත.';
-  }
-
-  startCountdown();
- }
-
- b1.onclick=()=>openAd(a1);
- b2.onclick=()=>openAd(a2);
-
- bv.onclick=()=>{
-  if(step===2){
-   location.assign(v);
-  }
- };
-
- paint();
-
- // Restore an active countdown after a page refresh.
- if(started && step<2){
-  const elapsed=Date.now()-started;
-
-  if(elapsed>=5000){
-   step++;
-   started=0;
-   store();
-   paint();
-  }else{
-   if(step===0)b1.disabled=true;
-   if(step===1)b2.disabled=true;
-   startCountdown();
-  }
- }
-}
-
-const v=validURL(video||'');
-const a1=validURL(ad1||'');
-const a2=validURL(ad2||'');
-
-if(v&&a1&&a2){
- showGate(v,a1,a2);
+if(video && ad1 && ad2){
+ gateway.classList.remove("hidden");
 }else{
- showGenerator();
+ generator.classList.remove("hidden");
 }
 
-})();
+function generateLink(){
+ const v=document.getElementById("videoUrl").value.trim();
+ const a1=document.getElementById("adUrl1").value.trim();
+ const a2=document.getElementById("adUrl2").value.trim();
+
+ if(!validUrl(v)||!validUrl(a1)||!validUrl(a2)){
+  document.getElementById("generatorStatus").textContent=
+   "කරුණාකර නිවැරදි සබැඳි තුනම ඇතුළත් කරන්න";
+  return;
+ }
+
+ const link=location.origin+location.pathname+
+  "?video="+encodeURIComponent(v)+
+  "&ad1="+encodeURIComponent(a1)+
+  "&ad2="+encodeURIComponent(a2);
+
+ const output=document.getElementById("generatedLink");
+ output.value=link;
+ output.classList.remove("hidden");
+ document.getElementById("copyBtn").classList.remove("hidden");
+ document.getElementById("generatorStatus").textContent="සබැඳිය සාර්ථකව සකස් කළා";
+}
+
+function copyLink(){
+ const field=document.getElementById("generatedLink");
+ field.select();
+ field.setSelectionRange(0,99999);
+ navigator.clipboard?.writeText(field.value).then(()=>{
+  document.getElementById("generatorStatus").textContent="සබැඳිය පිටපත් කළා";
+ }).catch(()=>{
+  document.execCommand("copy");
+  document.getElementById("generatorStatus").textContent="සබැඳිය පිටපත් කළා";
+ });
+}
+
+const storageKey="video_access_"+location.search;
+let saved={};
+try{saved=JSON.parse(sessionStorage.getItem(storageKey)||"{}")}catch(e){}
+let step=saved.step||0;
+let startedAt=saved.startedAt||0;
+let active=false;
+let ticker=null;
+
+const b1=document.getElementById("adButton1");
+const b2=document.getElementById("adButton2");
+const bv=document.getElementById("videoButton");
+const statusBox=document.getElementById("status");
+
+function save(){
+ sessionStorage.setItem(storageKey,JSON.stringify({step,startedAt}));
+}
+
+function paint(){
+ b1.disabled=step!==0||active;
+ b2.disabled=step!==1||active;
+ bv.disabled=step!==2;
+ if(step===0) statusBox.textContent="පළමු දැන්වීම විවෘත කර තත්පර 5ක් රැඳී සිටින්න";
+ if(step===1) statusBox.textContent="දැන් දෙවන දැන්වීම විවෘත කරන්න";
+ if(step===2) statusBox.textContent="දැන් ඔබට වීඩියෝව විවෘත කළ හැකියි";
+}
+
+function openAd(number){
+ if(active || (number===1 && step!==0) || (number===2 && step!==1))return;
+
+ const url=number===1?ad1:ad2;
+ if(!validUrl(url))return;
+
+ // Open the advertisement separately from the gateway page.
+ const newPage=window.open(url,"_blank");
+
+ if(!newPage){
+  statusBox.textContent="දැන්වීම විවෘත කිරීමට අවසර දෙන්න හෝ නැවත උත්සාහ කරන්න";
+  return;
+ }
+
+ active=true;
+ startedAt=Date.now();
+ save();
+ runCountdown(number);
+}
+
+function runCountdown(number){
+ clearInterval(ticker);
+ const count=document.getElementById("countdown"+number);
+ const bar=document.getElementById("progress"+number);
+
+ function update(){
+  const elapsed=(Date.now()-startedAt)/1000;
+  const remaining=Math.max(0,5-elapsed);
+  count.textContent="5 Second Countdown · "+Math.ceil(remaining)+"s";
+  bar.style.width=Math.min(100,elapsed/5*100)+"%";
+
+  if(remaining<=0){
+   clearInterval(ticker);
+   active=false;
+   step++;
+   startedAt=0;
+   save();
+   count.textContent="සම්පූර්ණයි ✓";
+   bar.style.width="100%";
+   paint();
+  }
+ }
+
+ update();
+ ticker=setInterval(update,150);
+}
+
+document.addEventListener("visibilitychange",()=>{
+ if(!document.hidden && active){
+  const number=step+1;
+  runCountdown(number);
+ }
+});
+
+window.addEventListener("pageshow",()=>{
+ if(active)runCountdown(step+1);
+});
+
+function openVideo(){
+ if(step!==2 || !validUrl(video))return;
+ location.href=video;
+}
+
+if(video && ad1 && ad2){
+ paint();
+ if(active && startedAt)runCountdown(step+1);
+}
 </script>
 </body>
 </html>
