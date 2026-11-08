@@ -107,6 +107,7 @@ h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
 }
 </style>
 </head>
+
 <body>
 <div class="wrapper">
 <div class="glass card">
@@ -114,7 +115,7 @@ h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
 
  <div class="logo"><span>▶</span></div>
  <h1>Unlock Your Video</h1>
- <p class="subtitle" id="subtitle">Complete the steps below to unlock your video</p>
+ <p class="subtitle">Complete the steps below to unlock your video</p>
 
  <section id="generator" class="hidden">
   <input class="input" id="videoUrl" placeholder="Enter Video URL">
@@ -149,12 +150,15 @@ const params=new URLSearchParams(location.search);
 const video=params.get("video");
 const ad1=params.get("ad1");
 const ad2=params.get("ad2");
+
 const generator=document.getElementById("generator");
 const gateway=document.getElementById("gateway");
 
 function validUrl(value){
- try{const u=new URL(value);return u.protocol==="https:"||u.protocol==="http:"}
- catch(e){return false}
+ try{
+  const u=new URL(value);
+  return u.protocol==="https:"||u.protocol==="http:";
+ }catch(e){return false}
 }
 
 if(video&&ad1&&ad2)gateway.classList.remove("hidden");
@@ -184,13 +188,16 @@ function generateLink(){
 
 function copyLink(){
  const field=document.getElementById("generatedLink");
- field.select();field.setSelectionRange(0,99999);
+ field.select();
+ field.setSelectionRange(0,99999);
+
  if(navigator.clipboard&&navigator.clipboard.writeText){
   navigator.clipboard.writeText(field.value).then(()=>{
    document.getElementById("generatorStatus").textContent="Link copied successfully!";
   }).catch(()=>fallbackCopy(field));
  }else fallbackCopy(field);
 }
+
 function fallbackCopy(field){
  document.execCommand("copy");
  document.getElementById("generatorStatus").textContent="Link copied successfully!";
@@ -199,6 +206,7 @@ function fallbackCopy(field){
 const storageKey="video_access_"+location.search;
 let saved={};
 try{saved=JSON.parse(sessionStorage.getItem(storageKey)||"{}")}catch(e){}
+
 let step=saved.step||0;
 let startedAt=saved.startedAt||0;
 let active=!!startedAt&&step<2;
@@ -209,12 +217,15 @@ const b2=document.getElementById("adButton2");
 const bv=document.getElementById("videoButton");
 const statusBox=document.getElementById("status");
 
-function save(){sessionStorage.setItem(storageKey,JSON.stringify({step,startedAt}))}
+function save(){
+ sessionStorage.setItem(storageKey,JSON.stringify({step,startedAt}));
+}
 
 function paint(){
  b1.disabled=step!==0||active;
  b2.disabled=step!==1||active;
  bv.disabled=step!==2;
+
  if(step===0)statusBox.textContent="Open the first ad and wait for 5 seconds.";
  if(step===1)statusBox.textContent="First step completed! Now open the second ad.";
  if(step===2)statusBox.textContent="All steps completed. Your video is ready!";
@@ -222,50 +233,74 @@ function paint(){
 
 function openAd(number){
  if(active||(number===1&&step!==0)||(number===2&&step!==1))return;
+
  const url=number===1?ad1:ad2;
  if(!validUrl(url))return;
 
  const newPage=window.open(url,"_blank");
+
  if(!newPage){
   statusBox.textContent="Please allow pop-ups and try again.";
   return;
  }
- active=true;startedAt=Date.now();save();
+
+ active=true;
+ startedAt=Date.now();
+ save();
  runCountdown(number);
 }
 
 function runCountdown(number){
  clearInterval(ticker);
+
  const count=document.getElementById("countdown"+number);
  const bar=document.getElementById("progress"+number);
 
  function update(){
   const elapsed=(Date.now()-startedAt)/1000;
   const remaining=Math.max(0,5-elapsed);
+
   count.textContent="5 Second Countdown · "+Math.ceil(remaining)+"s";
   bar.style.width=Math.min(100,elapsed/5*100)+"%";
 
   if(remaining<=0){
    clearInterval(ticker);
-   active=false;step++;startedAt=0;save();
+   active=false;
+   step++;
+   startedAt=0;
+   save();
    count.textContent="Completed ✓";
    bar.style.width="100%";
    paint();
   }
  }
- update();ticker=setInterval(update,150);
+
+ update();
+ ticker=setInterval(update,150);
 }
 
 document.addEventListener("visibilitychange",()=>{
  if(!document.hidden&&active)runCountdown(step+1);
 });
+
 window.addEventListener("pageshow",()=>{
  if(active)runCountdown(step+1);
 });
 
+/* Telegram bot link redirect */
 function openVideo(){
  if(step!==2||!validUrl(video))return;
- location.href=video;
+
+ let destination=video.trim();
+
+ // Normalize telegram.me links to t.me
+ destination=destination.replace(
+  /^https?:\/\/telegram\.me\//i,
+  "https://t.me/"
+ );
+
+ // Open Telegram deep link
+ window.open(destination,"_blank");
 }
 
 if(video&&ad1&&ad2){
