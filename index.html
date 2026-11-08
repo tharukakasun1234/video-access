@@ -1,72 +1,210 @@
 
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Access</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;padding:20px;
+ display:flex;align-items:center;justify-content:center;
+ background:radial-gradient(circle at top,#12362d,#07100e 60%);
+ font-family:Arial,sans-serif;color:white
+}
+.container{width:100%;max-width:480px}
+.card{
+ background:linear-gradient(145deg,#12241f,#09110f);
+ border:1px solid #17634d;border-radius:22px;
+ padding:28px;box-shadow:0 15px 60px #0009
+}
+.logo{text-align:center;font-size:43px;color:#00e5ae}
+h1{text-align:center;color:#00e5ae;font-size:26px;margin:10px 0}
+.subtitle{text-align:center;color:#8ba99d;font-size:12px;margin-bottom:25px}
+.section{
+ background:#10231c;border:1px solid #285344;
+ padding:20px;border-radius:15px;margin-top:16px
+}
+label{display:block;color:#a9d5c4;font-size:13px;margin:13px 0 7px}
+input{
+ width:100%;padding:14px;border-radius:9px;
+ background:#091510;border:1px solid #315a49;
+ color:white;font-size:14px
+}
+button{
+ width:100%;padding:15px;margin-top:13px;
+ border:0;border-radius:10px;
+ background:linear-gradient(90deg,#00c997,#00e5ae);
+ color:#00251a;font-weight:bold;font-size:15px;cursor:pointer
+}
+button:disabled{background:#34443d;color:#a0b0a8;cursor:not-allowed}
+.timer{text-align:center;font-size:48px;font-weight:bold;color:#00e5ae;margin:15px}
+.bar{height:7px;background:#30483d;border-radius:10px;overflow:hidden}
+.fill{height:100%;width:0;background:#00e5ae;transition:width .15s}
+.status{text-align:center;color:#a5c6b7;font-size:13px;line-height:1.7}
+.warning{
+ display:none;background:#421b20;border:1px solid #ff586a;
+ padding:18px;border-radius:12px;text-align:center;
+ color:#ffb0b9;margin-top:15px;line-height:1.7
+}
+.output{display:none;overflow-wrap:anywhere;color:#9df5d0;font-size:12px;margin-top:15px}
+.small{text-align:center;color:#69877b;font-size:11px;margin-top:22px}
+.modal-bg{
+ display:none;position:fixed;inset:0;background:#000c;
+ align-items:center;justify-content:center;padding:20px;z-index:9999
+}
+.modal{
+ width:100%;max-width:360px;background:#14231d;
+ border:1px solid #ff586a;border-radius:18px;
+ padding:25px;text-align:center;box-shadow:0 15px 50px #000b
+}
+.modal h2{color:#ff7583;font-size:21px}
+.modal p{color:#f3c2c7;line-height:1.7;font-size:14px}
+.modal button{margin-top:12px}
+</style>
+</head>
+
+<body>
+<div class="container">
+ <div class="card">
+  <div class="logo">▶</div>
+  <h1>VIDEO ACCESS</h1>
+  <div class="subtitle">PREMIUM VIDEO GATEWAY</div>
+  <div id="app"></div>
+  <div class="small">VIDEO ACCESS SYSTEM ❤️</div>
+ </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+ <div class="modal">
+  <h2>⚠️ අවවාදයයි!</h2>
+  <p id="modalMessage"></p>
+  <button id="modalClose">හරි</button>
+ </div>
+</div>
+
 <script>
+(() => {
+'use strict';
+
 const app = document.getElementById('app');
+const modalBg = document.getElementById('modalBg');
+const modalMessage = document.getElementById('modalMessage');
+const modalClose = document.getElementById('modalClose');
+
 const params = new URLSearchParams(location.search);
 const video = params.get('video');
 const ad = params.get('ad');
 
-const STORAGE_KEY = 'video_access_timer_v4';
+const STORAGE_KEY = 'video_access_state_v5';
 const WAIT_TIME = 5000;
 
-function validURL(s) {
+let timerInterval = null;
+let adStartedAt = 0;
+let adOpened = false;
+let completed = false;
+let hasLeftPage = false;
+let warningShown = false;
+
+function showModal(message) {
+  modalMessage.textContent = message;
+  modalBg.style.display = 'flex';
+}
+
+modalClose.addEventListener('click', () => {
+  modalBg.style.display = 'none';
+});
+
+function validURL(value) {
   try {
-    const u = new URL(s);
-    return ['https:', 'http:'].includes(u.protocol) ? u.href : null;
+    const url = new URL(value);
+    return ['https:', 'http:'].includes(url.protocol) ? url.href : null;
   } catch (e) {
     return null;
   }
 }
 
-function showModal(message) {
-  document.getElementById('modalMessage').textContent = message;
-  document.getElementById('modalBg').style.display = 'flex';
+function saveState() {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      startedAt: adStartedAt,
+      opened: adOpened,
+      completed: completed
+    }));
+  } catch (e) {}
 }
 
-document.getElementById('modalClose').onclick = () => {
-  document.getElementById('modalBg').style.display = 'none';
-};
+function loadState() {
+  try {
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    if (!saved) return false;
+
+    const data = JSON.parse(saved);
+    if (!data || !data.startedAt) return false;
+
+    adStartedAt = data.startedAt;
+    adOpened = !!data.opened;
+    completed = !!data.completed;
+
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function clearState() {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch (e) {}
+}
 
 function showGenerator() {
   app.innerHTML = `
   <div class="section">
     <h3 style="text-align:center;color:#00e5ae">LINK GENERATOR</h3>
     <p class="status">ඔබගේ වීඩියෝ Link එක සාදාගන්න</p>
+
     <label>වීඩියෝ Link එක</label>
-    <input id="video" placeholder="https://example.com/video">
+    <input id="videoInput" placeholder="https://example.com/video">
+
     <label>දැන්වීම් Link එක</label>
-    <input id="ad" placeholder="https://example.com/ad">
+    <input id="adInput" placeholder="https://example.com/ad">
+
     <button id="generate">LINK එක සාදන්න ↗</button>
+
     <div class="output" id="output">
       <p>ඔබගේ Link එක:</p>
-      <div id="link"></div>
+      <div id="generatedLink"></div>
       <button id="copy">COPY LINK</button>
     </div>
   </div>`;
 
   document.getElementById('generate').onclick = () => {
-    const v = validURL(document.getElementById('video').value.trim());
-    const a = validURL(document.getElementById('ad').value.trim());
+    const v = validURL(document.getElementById('videoInput').value.trim());
+    const a = validURL(document.getElementById('adInput').value.trim());
 
     if (!v || !a) {
       showModal('කරුණාකර නිවැරදි Video සහ Ad Links ඇතුළත් කරන්න.');
       return;
     }
 
-    const u = new URL(location.href);
-    u.search = '';
-    u.hash = '';
-    u.searchParams.set('video', v);
-    u.searchParams.set('ad', a);
+    const url = new URL(location.href);
+    url.search = '';
+    url.hash = '';
+    url.searchParams.set('video', v);
+    url.searchParams.set('ad', a);
 
-    document.getElementById('link').textContent = u.href;
+    document.getElementById('generatedLink').textContent = url.href;
     document.getElementById('output').style.display = 'block';
 
     document.getElementById('copy').onclick = async () => {
       try {
-        await navigator.clipboard.writeText(u.href);
+        await navigator.clipboard.writeText(url.href);
         document.getElementById('copy').textContent = 'COPY කළා ✓';
       } catch (e) {
-        showModal('Link එක Copy කිරීමට එය දිගට ඔබා Copy තෝරන්න.');
+        showModal('Link එක දිගට ඔබා Copy තෝරන්න.');
       }
     };
   };
@@ -91,21 +229,16 @@ function showGate(v, a) {
     </div>
   </div>`;
 
+  const open = document.getElementById('open');
+  const unlock = document.getElementById('unlock');
   const timer = document.getElementById('timer');
   const fill = document.getElementById('fill');
   const status = document.getElementById('status');
   const warning = document.getElementById('warning');
-  const unlock = document.getElementById('unlock');
-  const open = document.getElementById('open');
-
-  let done = false;
-  let countdown = null;
 
   function finish() {
-    if (done) return;
-
-    done = true;
-    clearInterval(countdown);
+    completed = true;
+    clearInterval(timerInterval);
 
     timer.textContent = '✓';
     fill.style.width = '100%';
@@ -113,162 +246,127 @@ function showGate(v, a) {
 
     unlock.disabled = false;
     unlock.textContent = '▶ වීඩියෝව බලන්න';
-
     open.disabled = true;
     warning.style.display = 'none';
-  }
 
-  function resetGate() {
-    done = false;
-    clearInterval(countdown);
-
-    timer.textContent = '05';
-    fill.style.width = '0%';
-
-    status.textContent = 'තත්පර 5ට පෙර ආපසු පැමිණ ඇත. නැවත AD Link එක විවෘත කරන්න.';
-    unlock.disabled = true;
-    unlock.textContent = '🔒 වීඩියෝව Unlock කරන්න';
-
-    open.disabled = false;
-    open.textContent = 'AD LINK එක නැවත විවෘත කරන්න ↗';
-
-    warning.style.display = 'block';
+    saveState();
   }
 
   function updateTimer() {
-    let raw;
+    if (!adStartedAt || completed) return;
 
-    try {
-      raw = sessionStorage.getItem(STORAGE_KEY);
-    } catch (e) {
-      return;
+    const elapsed = Date.now() - adStartedAt;
+    const remaining = Math.max(0, WAIT_TIME - elapsed);
+
+    timer.textContent = String(Math.ceil(remaining / 1000)).padStart(2, '0');
+    fill.style.width = Math.min(100, elapsed / WAIT_TIME * 100) + '%';
+
+    if (remaining <= 0) {
+      status.textContent = 'තත්පර 5 සම්පූර්ණයි! Gateway එකට ආපසු එන්න.';
     }
-
-    if (!raw) return;
-
-    try {
-      const data = JSON.parse(raw);
-      if (!data || !data.started) return;
-
-      const elapsed = Date.now() - data.started;
-      const remaining = Math.max(0, WAIT_TIME - elapsed);
-
-      timer.textContent = String(Math.ceil(remaining / 1000)).padStart(2, '0');
-      fill.style.width = Math.min(100, (elapsed / WAIT_TIME) * 100) + '%';
-
-      if (remaining === 0) {
-        status.textContent = 'තත්පර 5 සම්පූර්ණයි. Gateway එකට ආපසු එන්න.';
-      }
-    } catch (e) {}
   }
 
-  function checkReturn() {
-    if (document.visibilityState === 'hidden') return;
+  function handleReturn() {
+    if (!adOpened || !hasLeftPage || warningShown) return;
 
-    let raw;
+    hasLeftPage = false;
+    warningShown = true;
 
-    try {
-      raw = sessionStorage.getItem(STORAGE_KEY);
-    } catch (e) {
-      return;
-    }
-
-    if (!raw) return;
-
-    let data;
-
-    try {
-      data = JSON.parse(raw);
-    } catch (e) {
-      sessionStorage.removeItem(STORAGE_KEY);
-      return;
-    }
-
-    if (!data || !data.started) return;
-
-    // Process this return only once.
-    sessionStorage.removeItem(STORAGE_KEY);
-    clearInterval(countdown);
-
-    const elapsed = Date.now() - data.started;
+    const elapsed = Date.now() - adStartedAt;
 
     if (elapsed >= WAIT_TIME) {
       finish();
     } else {
-      resetGate();
+      clearInterval(timerInterval);
 
-      showModal(
-        'තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත. නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.'
-      );
+      adStartedAt = 0;
+      adOpened = false;
+      completed = false;
+      clearState();
+
+      timer.textContent = '05';
+      fill.style.width = '0%';
+      status.textContent = 'නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.';
+
+      open.disabled = false;
+      open.textContent = 'AD LINK එක නැවත විවෘත කරන්න ↗';
+      unlock.disabled = true;
+      unlock.textContent = '🔒 වීඩියෝව Unlock කරන්න';
+
+      warning.style.display = 'block';
+
+      showModal('තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත. නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.');
     }
   }
 
   open.onclick = () => {
-    if (done) return;
+    if (adOpened || completed) return;
 
-    // Open a separate page directly from the user's click.
-    // Do NOT replace the current Gateway page.
-    const adWindow = window.open('about:blank', '_blank');
+    // Open the ad in a separate page from the user's direct click.
+    const newPage = window.open(a, '_blank');
 
-    if (!adWindow) {
-      showModal(
-        'Telegram In-App Browser එකෙන් වෙනම Page එකක් විවෘත කළ නොහැකි විය. Browser එකේ popup අවසරය පරීක්ෂා කරන්න.'
-      );
+    if (!newPage) {
+      showModal('Telegram Browser එක වෙනම Page එක විවෘත කිරීම අවහිර කළා. නැවත උත්සාහ කරන්න.');
       return;
     }
 
-    try {
-      sessionStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ started: Date.now() })
-      );
+    adStartedAt = Date.now();
+    adOpened = true;
+    hasLeftPage = false;
+    warningShown = false;
 
-      adWindow.location.replace(a);
+    saveState();
 
-      open.disabled = true;
-      status.textContent = 'Ad Page එකෙන් ආපසු පැමිණෙන තෙක් රැඳී සිටින්න.';
+    open.disabled = true;
+    status.textContent = 'Ad Page එකෙන් නැවත පැමිණෙන තෙක් රැඳී සිටින්න.';
 
-      updateTimer();
-      countdown = setInterval(updateTimer, 250);
-
-    } catch (e) {
-      try { adWindow.close(); } catch (err) {}
-
-      showModal('Ad Page එක විවෘත කිරීමේදී ගැටලුවක් ඇති විය.');
-    }
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 250);
   };
 
-  unlock.onclick = () => {
-    if (!done) return;
-
-    try {
-      sessionStorage.removeItem(STORAGE_KEY);
-    } catch (e) {}
-
-    location.assign(v);
-  };
-
-  // Detect returning from another page in the In-App Browser.
-  window.addEventListener('focus', checkReturn);
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      checkReturn();
+  // Detect when the ad page takes focus.
+  window.addEventListener('blur', () => {
+    if (adOpened && !completed) {
+      hasLeftPage = true;
     }
   });
 
-  window.addEventListener('pageshow', checkReturn);
+  // Detect when the user returns to the gateway.
+  window.addEventListener('focus', handleReturn);
 
-  // Handle a reload or restored page.
-  checkReturn();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && adOpened) {
+      hasLeftPage = true;
+    }
+
+    if (document.visibilityState === 'visible') {
+      handleReturn();
+    }
+  });
+
+  window.addEventListener('pageshow', () => {
+    if (loadState() && adOpened && !completed) {
+      handleReturn();
+    }
+  });
+
+  unlock.onclick = () => {
+    if (!completed) return;
+    clearState();
+    location.assign(v);
+  };
 }
 
-const v = validURL(video || '');
-const a = validURL(ad || '');
+const validVideo = validURL(video || '');
+const validAd = validURL(ad || '');
 
-if (v && a) {
-  showGate(v, a);
+if (validVideo && validAd) {
+  showGate(validVideo, validAd);
 } else {
   showGenerator();
 }
+
+})();
 </script>
+</body>
+</html>
