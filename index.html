@@ -4,396 +4,508 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Video Access</title>
+<meta name="theme-color" content="#071512">
+<title>VIDEO ACCESS</title>
 
 <style>
 *{box-sizing:border-box}
+
 body{
- margin:0;min-height:100vh;padding:20px;
- display:flex;align-items:center;justify-content:center;
- background:radial-gradient(circle at top,#12362d,#07100e 60%);
- font-family:Arial,sans-serif;color:white
+ margin:0;
+ min-height:100vh;
+ padding:22px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-family:Arial,sans-serif;
+ color:white;
+ background:
+ radial-gradient(ellipse at 15% 10%,#126451 0%,transparent 45%),
+ radial-gradient(ellipse at 90% 90%,#123c58 0%,transparent 45%),
+ #050d0c;
 }
-.container{width:100%;max-width:480px}
+
+.container{width:100%;max-width:470px}
+
 .card{
- background:linear-gradient(145deg,#12241f,#09110f);
- border:1px solid #17634d;border-radius:22px;
- padding:28px;box-shadow:0 15px 60px #0009
+ padding:27px;
+ border-radius:28px;
+ background:rgba(255,255,255,.075);
+ border:1px solid rgba(255,255,255,.18);
+ box-shadow:0 20px 70px #0008;
+ backdrop-filter:blur(25px);
+ -webkit-backdrop-filter:blur(25px);
 }
-.logo{text-align:center;font-size:43px;color:#00e5ae}
-h1{text-align:center;color:#00e5ae;font-size:26px;margin:10px 0}
-.subtitle{text-align:center;color:#8ba99d;font-size:12px;margin-bottom:25px}
+
+.logo{
+ text-align:center;
+ font-size:48px;
+ color:#65ffe0;
+ text-shadow:0 0 25px #00e5ae88;
+}
+
+h1{
+ text-align:center;
+ font-size:27px;
+ letter-spacing:3px;
+ margin:10px 0;
+ color:#b9fff0;
+}
+
+.subtitle{
+ text-align:center;
+ color:#a2c9bd;
+ font-size:11px;
+ letter-spacing:3px;
+ margin-bottom:27px;
+}
+
 .section{
- background:#10231c;border:1px solid #285344;
- padding:20px;border-radius:15px;margin-top:16px
+ padding:19px;
+ margin-top:15px;
+ border-radius:20px;
+ background:rgba(255,255,255,.065);
+ border:1px solid rgba(255,255,255,.14);
+ box-shadow:inset 0 1px 1px #ffffff15;
 }
-label{display:block;color:#a9d5c4;font-size:13px;margin:13px 0 7px}
+
+label{
+ display:block;
+ color:#b8e9dc;
+ font-size:13px;
+ margin:13px 0 7px;
+}
+
 input{
- width:100%;padding:14px;border-radius:9px;
- background:#091510;border:1px solid #315a49;
- color:white;font-size:14px
+ width:100%;
+ padding:14px;
+ border-radius:12px;
+ background:rgba(0,0,0,.28);
+ border:1px solid #ffffff25;
+ color:white;
+ outline:none;
+ font-size:14px;
 }
+
+input:focus{border-color:#55f4d0}
+
 button{
- width:100%;padding:15px;margin-top:13px;
- border:0;border-radius:10px;
- background:linear-gradient(90deg,#00c997,#00e5ae);
- color:#00251a;font-weight:bold;font-size:15px;cursor:pointer
+ width:100%;
+ padding:15px;
+ margin-top:12px;
+ border:1px solid #ffffff30;
+ border-radius:14px;
+ background:linear-gradient(120deg,#00d9ad,#73ffe0);
+ color:#03251d;
+ font-weight:bold;
+ font-size:14px;
+ cursor:pointer;
+ transition:.25s;
 }
-button:disabled{background:#34443d;color:#a0b0a8;cursor:not-allowed}
-.timer{text-align:center;font-size:48px;font-weight:bold;color:#00e5ae;margin:15px}
-.bar{height:7px;background:#30483d;border-radius:10px;overflow:hidden}
-.fill{height:100%;width:0;background:#00e5ae;transition:width .15s}
-.status{text-align:center;color:#a5c6b7;font-size:13px;line-height:1.7}
-.warning{
- display:none;background:#421b20;border:1px solid #ff586a;
- padding:18px;border-radius:12px;text-align:center;
- color:#ffb0b9;margin-top:15px;line-height:1.7
+
+button:not(:disabled):active{transform:scale(.97)}
+
+button:disabled{
+ background:rgba(255,255,255,.08);
+ color:#80938b;
+ border-color:#ffffff12;
+ cursor:not-allowed;
 }
-.output{display:none;overflow-wrap:anywhere;color:#9df5d0;font-size:12px;margin-top:15px}
-.small{text-align:center;color:#69877b;font-size:11px;margin-top:22px}
-.modal-bg{
- display:none;position:fixed;inset:0;background:#000c;
- align-items:center;justify-content:center;padding:20px;z-index:9999
+
+.status{
+ text-align:center;
+ font-size:12px;
+ line-height:1.7;
+ color:#b3d1c7;
+ margin:8px 0;
 }
-.modal{
- width:100%;max-width:360px;background:#14231d;
- border:1px solid #ff586a;border-radius:18px;
- padding:25px;text-align:center;box-shadow:0 15px 50px #000b
+
+.step{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
 }
-.modal h2{color:#ff7583;font-size:21px}
-.modal p{color:#f3c2c7;line-height:1.7;font-size:14px}
-.modal button{margin-top:12px}
+
+.step h3{
+ margin:0;
+ font-size:15px;
+}
+
+.badge{
+ padding:6px 10px;
+ border-radius:30px;
+ font-size:10px;
+ background:#ffffff12;
+ color:#a6b8b1;
+ border:1px solid #ffffff20;
+}
+
+.badge.active{
+ background:#00d9ad20;
+ color:#6dffdf;
+ border-color:#00d9ad66;
+}
+
+.timer{
+ text-align:center;
+ font-size:35px;
+ font-weight:bold;
+ color:#75ffe0;
+ margin:10px;
+}
+
+.bar{
+ height:6px;
+ border-radius:20px;
+ background:#ffffff18;
+ overflow:hidden;
+ margin-top:12px;
+}
+
+.fill{
+ height:100%;
+ width:0;
+ background:#55f5d2;
+ transition:width .2s linear;
+}
+
+.output{
+ display:none;
+ margin-top:15px;
+ color:#a5ffe7;
+ overflow-wrap:anywhere;
+ font-size:12px;
+}
+
+.small{
+ text-align:center;
+ color:#91b6a9;
+ font-size:10px;
+ margin-top:25px;
+ letter-spacing:2px;
+}
+
 </style>
 </head>
 
 <body>
 <div class="container">
- <div class="card">
-  <div class="logo">▶</div>
-  <h1>VIDEO ACCESS</h1>
-  <div class="subtitle">PREMIUM VIDEO GATEWAY</div>
-  <div id="app"></div>
-  <div class="small">VIDEO ACCESS SYSTEM ❤️</div>
- </div>
-</div>
+<div class="card">
 
-<div class="modal-bg" id="modalBg">
- <div class="modal">
-  <h2>⚠️ අවවාදයයි!</h2>
-  <p id="modalMessage"></p>
-  <button id="modalClose">හරි</button>
- </div>
+<div class="logo">▶</div>
+<h1>VIDEO ACCESS</h1>
+<div class="subtitle">PREMIUM VIDEO GATEWAY</div>
+
+<div id="app"></div>
+
+<div class="small">LIQUID GLASS EXPERIENCE ❤️</div>
+
+</div>
 </div>
 
 <script>
 (() => {
 'use strict';
 
-const app = document.getElementById('app');
-const modalBg = document.getElementById('modalBg');
-const modalMessage = document.getElementById('modalMessage');
-const modalClose = document.getElementById('modalClose');
+const app=document.getElementById('app');
+const params=new URLSearchParams(location.search);
 
-const params = new URLSearchParams(location.search);
-const video = params.get('video');
-const ad = params.get('ad');
+const video=params.get('video');
+const ad1=params.get('ad1');
+const ad2=params.get('ad2');
 
-const STORAGE_KEY = 'video_access_state_v6';
-const WAIT_TIME = 5000;
+const KEY='liquid_video_access_v1';
 
-let startedAt = 0;
-let adOpened = false;
-let completed = false;
-let leftGateway = false;
-let returnHandled = false;
-let timerInterval = null;
-
-modalClose.onclick = () => {
- modalBg.style.display = 'none';
-};
-
-function showModal(message) {
- modalMessage.textContent = message;
- modalBg.style.display = 'flex';
+function validURL(value){
+ try{
+  const u=new URL(value);
+  return ['https:','http:'].includes(u.protocol)?u.href:null;
+ }catch(e){return null;}
 }
 
-function validURL(value) {
- try {
-  const u = new URL(value);
-  return ['https:', 'http:'].includes(u.protocol) ? u.href : null;
- } catch(e) {
-  return null;
- }
+function showMessage(message){
+ alert(message);
 }
 
-function saveState() {
- try {
-  sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
-   startedAt,
-   adOpened,
-   completed
-  }));
- } catch(e) {}
+function saveState(state){
+ try{
+  sessionStorage.setItem(KEY,JSON.stringify(state));
+ }catch(e){}
 }
 
-function getState() {
- try {
-  const raw = sessionStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
-
-  const data = JSON.parse(raw);
-
-  if (!data || !data.startedAt || !data.adOpened) {
-   return null;
-  }
-
-  return data;
- } catch(e) {
-  return null;
- }
+function getState(){
+ try{
+  return JSON.parse(sessionStorage.getItem(KEY)) || {};
+ }catch(e){return {};}
 }
 
-function clearState() {
- try {
-  sessionStorage.removeItem(STORAGE_KEY);
- } catch(e) {}
-}
+function showGenerator(){
 
-function showGenerator() {
- app.innerHTML = `
+ app.innerHTML=`
  <div class="section">
-  <h3 style="text-align:center;color:#00e5ae">LINK GENERATOR</h3>
-  <p class="status">ඔබගේ වීඩියෝ Link එක සාදාගන්න</p>
+  <h3 style="text-align:center;color:#8dffe5">CREATE VIDEO LINK</h3>
+  <p class="status">ඔබගේ Video සහ Ad Links ඇතුළත් කරන්න</p>
 
-  <label>වීඩියෝ Link එක</label>
+  <label>VIDEO URL</label>
   <input id="videoInput" placeholder="https://example.com/video">
 
-  <label>දැන්වීම් Link එක</label>
-  <input id="adInput" placeholder="https://example.com/ad">
+  <label>ADVERTISEMENT 01 URL</label>
+  <input id="ad1Input" placeholder="https://example.com/ad1">
 
-  <button id="generate">LINK එක සාදන්න ↗</button>
+  <label>ADVERTISEMENT 02 URL</label>
+  <input id="ad2Input" placeholder="https://example.com/ad2">
+
+  <button id="generate">GENERATE LINK ↗</button>
 
   <div class="output" id="output">
-   <p>ඔබගේ Link එක:</p>
-   <div id="generatedLink"></div>
+   <p>YOUR VIDEO LINK</p>
+   <div id="result"></div>
    <button id="copy">COPY LINK</button>
   </div>
  </div>`;
 
- document.getElementById('generate').onclick = () => {
-  const v = validURL(document.getElementById('videoInput').value.trim());
-  const a = validURL(document.getElementById('adInput').value.trim());
+ document.getElementById('generate').onclick=()=>{
+  const v=validURL(document.getElementById('videoInput').value.trim());
+  const a1=validURL(document.getElementById('ad1Input').value.trim());
+  const a2=validURL(document.getElementById('ad2Input').value.trim());
 
-  if (!v || !a) {
-   showModal('කරුණාකර නිවැරදි Video සහ Ad Links ඇතුළත් කරන්න.');
+  if(!v||!a1||!a2){
+   showMessage('කරුණාකර Links තුනම නිවැරදිව ඇතුළත් කරන්න.');
    return;
   }
 
-  const u = new URL(location.href);
-  u.search = '';
-  u.hash = '';
-  u.searchParams.set('video', v);
-  u.searchParams.set('ad', a);
+  const u=new URL(location.href);
+  u.search='';
+  u.hash='';
 
-  document.getElementById('generatedLink').textContent = u.href;
-  document.getElementById('output').style.display = 'block';
+  u.searchParams.set('video',v);
+  u.searchParams.set('ad1',a1);
+  u.searchParams.set('ad2',a2);
 
-  document.getElementById('copy').onclick = async () => {
-   try {
+  document.getElementById('result').textContent=u.href;
+  document.getElementById('output').style.display='block';
+
+  document.getElementById('copy').onclick=async()=>{
+   try{
     await navigator.clipboard.writeText(u.href);
-    document.getElementById('copy').textContent = 'COPY කළා ✓';
-   } catch(e) {
-    showModal('Link එක දිගට ඔබා Copy තෝරන්න.');
+    document.getElementById('copy').textContent='COPIED ✓';
+   }catch(e){
+    showMessage('Link එක දිගට ඔබා Copy කරන්න.');
    }
   };
  };
 }
 
-function showGate(v, a) {
- app.innerHTML = `
+function showGate(v,a1,a2){
+
+ let state=getState();
+
+ if(state.link!==location.href){
+  state={link:location.href,step:0,started:0};
+  saveState(state);
+ }
+
+ let step=Number(state.step)||0;
+ let started=Number(state.started)||0;
+
+ app.innerHTML=`
  <div class="section">
-  <h3 style="text-align:center">පියවර 01 — දැන්වීම් Link එක</h3>
-  <p class="status">පහත Button එක Click කර දැන්වීම් Link එක විවෘත කරන්න.</p>
-  <button id="open">AD LINK එක විවෘත කරන්න ↗</button>
+  <div class="step">
+   <h3>01 — ADVERTISEMENT</h3>
+   <span class="badge" id="badge1">LOCKED</span>
+  </div>
+  <button id="adButton1">↗ OPEN AD 01</button>
+  <div class="status" id="status1">පළමු දැන්වීම විවෘත කරන්න</div>
+  <div class="timer" id="timer1"></div>
+  <div class="bar"><div class="fill" id="fill1"></div></div>
  </div>
 
  <div class="section">
-  <h3 style="text-align:center">වීඩියෝව Unlock කිරීම</h3>
-  <div class="timer" id="timer">05</div>
-  <div class="bar"><div class="fill" id="fill"></div></div>
-  <p class="status" id="status">AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.</p>
-  <button id="unlock" disabled>🔒 වීඩියෝව Unlock කරන්න</button>
-  <div class="warning" id="warning">
-   ⚠️ තත්පර 5ට පෙර ඔබ නැවත පැමිණ ඇත.
+  <div class="step">
+   <h3>02 — ADVERTISEMENT</h3>
+   <span class="badge" id="badge2">LOCKED</span>
   </div>
+  <button id="adButton2" disabled>🔒 OPEN AD 02</button>
+  <div class="status" id="status2">පළමු පියවර සම්පූර්ණ කරන්න</div>
+  <div class="timer" id="timer2"></div>
+  <div class="bar"><div class="fill" id="fill2"></div></div>
+ </div>
+
+ <div class="section">
+  <div class="step">
+   <h3>VIDEO ACCESS</h3>
+   <span class="badge" id="badgeVideo">LOCKED</span>
+  </div>
+  <button id="videoButton" disabled>🔒 WATCH VIDEO</button>
+  <p class="status" id="videoStatus">දැන්වීම් දෙකම සම්පූර්ණ කරන්න</p>
  </div>`;
 
- const open = document.getElementById('open');
- const unlock = document.getElementById('unlock');
- const timer = document.getElementById('timer');
- const fill = document.getElementById('fill');
- const status = document.getElementById('status');
- const warning = document.getElementById('warning');
+ const b1=document.getElementById('adButton1');
+ const b2=document.getElementById('adButton2');
+ const bv=document.getElementById('videoButton');
 
- function finish() {
-  completed = true;
-  adOpened = false;
-  clearInterval(timerInterval);
+ const t1=document.getElementById('timer1');
+ const t2=document.getElementById('timer2');
+ const f1=document.getElementById('fill1');
+ const f2=document.getElementById('fill2');
 
-  timer.textContent = '✓';
-  fill.style.width = '100%';
-  status.textContent = 'තත්පර 5 සම්පූර්ණයි! දැන් වීඩියෝව නැරඹිය හැකියි.';
+ const s1=document.getElementById('status1');
+ const s2=document.getElementById('status2');
 
-  unlock.disabled = false;
-  unlock.textContent = '▶ වීඩියෝව බලන්න';
+ let interval=null;
 
-  open.disabled = true;
-  warning.style.display = 'none';
-
-  saveState();
+ function store(){
+  state.link=location.href;
+  state.step=step;
+  state.started=started;
+  saveState(state);
  }
 
- function resetGate() {
-  clearInterval(timerInterval);
+ function paint(){
 
-  startedAt = 0;
-  adOpened = false;
-  completed = false;
-  leftGateway = false;
-  returnHandled = true;
+  b1.disabled=step!==0;
+  b2.disabled=step!==1;
+  bv.disabled=step!==2;
 
-  clearState();
+  document.getElementById('badge1').textContent=
+   step>=1?'COMPLETED':step===0?'READY':'LOCKED';
 
-  timer.textContent = '05';
-  fill.style.width = '0%';
-  status.textContent = 'නැවත AD Link එක විවෘත කර තත්පර 5ක් රැඳී සිටින්න.';
+  document.getElementById('badge1').className=
+   'badge '+(step>=1?'active':'');
 
-  open.disabled = false;
-  open.textContent = 'AD LINK එක නැවත විවෘත කරන්න ↗';
+  document.getElementById('badge2').textContent=
+   step>=2?'COMPLETED':step===1?'READY':'LOCKED';
 
-  unlock.disabled = true;
-  unlock.textContent = '🔒 වීඩියෝව Unlock කරන්න';
+  document.getElementById('badge2').className=
+   'badge '+(step>=2?'active':'');
 
-  warning.style.display = 'block';
+  document.getElementById('badgeVideo').textContent=
+   step===2?'UNLOCKED':'LOCKED';
 
-  showModal('තත්පර 5 සම්පූර්ණ වීමට පෙර ඔබ නැවත පැමිණ ඇත!');
- }
+  if(step>=1){
+   b1.textContent='✓ AD 01 COMPLETED';
+   t1.textContent='✓';
+   f1.style.width='100%';
+   s1.textContent='පළමු දැන්වීම සම්පූර්ණයි';
+  }
 
- function updateTimer() {
-  if (!startedAt || completed) return;
-
-  const elapsed = Date.now() - startedAt;
-  const remaining = Math.max(0, WAIT_TIME - elapsed);
-
-  timer.textContent = String(Math.ceil(remaining / 1000)).padStart(2, '0');
-  fill.style.width = Math.min(100, elapsed / WAIT_TIME * 100) + '%';
-
-  if (remaining <= 0) {
-   status.textContent = 'තත්පර 5 සම්පූර්ණයි. Gateway එකට ආපසු එන්න.';
+  if(step>=2){
+   b2.textContent='✓ AD 02 COMPLETED';
+   t2.textContent='✓';
+   f2.style.width='100%';
+   s2.textContent='දෙවැනි දැන්වීම සම්පූර්ණයි';
+   bv.textContent='▶ WATCH VIDEO';
+   document.getElementById('videoStatus').textContent=
+    'ඔබගේ වීඩියෝව දැන් නැරඹිය හැකියි!';
   }
  }
 
- function checkReturn() {
-  if (!adOpened || !leftGateway || returnHandled) return;
+ function startCountdown(){
 
-  returnHandled = true;
+  clearInterval(interval);
 
-  const elapsed = Date.now() - startedAt;
+  function tick(){
 
-  if (elapsed >= WAIT_TIME) {
-   finish();
-  } else {
-   resetGate();
+   const elapsed=Date.now()-started;
+   const remaining=Math.max(0,5000-elapsed);
+   const seconds=Math.ceil(remaining/1000);
+
+   const timer=step===0?t1:t2;
+   const fill=step===0?f1:f2;
+   const status=step===0?s1:s2;
+
+   timer.textContent=String(seconds).padStart(2,'0');
+   fill.style.width=Math.min(100,elapsed/5000*100)+'%';
+
+   if(remaining<=0){
+    clearInterval(interval);
+
+    step++;
+    started=0;
+    store();
+    paint();
+
+    if(step===1){
+     b2.disabled=false;
+     s2.textContent='දැන් දෙවැනි දැන්වීම විවෘත කරන්න';
+    }
+
+    if(step===2){
+     bv.disabled=false;
+     document.getElementById('videoStatus').textContent=
+      'දැන් වීඩියෝව නැරඹිය හැකියි!';
+    }
+   }else{
+    status.textContent='කරුණාකර තත්පර 5ක් රැඳී සිටින්න.';
+   }
   }
+
+  tick();
+  interval=setInterval(tick,200);
  }
 
- open.onclick = () => {
-  if (adOpened || completed) return;
+ function openAd(url){
 
-  // Open the ad directly from the user's click.
-  const adPage = window.open(a, '_blank');
+  if(started||step>=2)return;
 
-  if (!adPage) {
-   showModal('Telegram Browser එක වෙනම Page එක විවෘත කිරීම අවහිර කළා. නැවත උත්සාහ කරන්න.');
+  // Direct user-click opens the ad in a separate page.
+  const page=window.open(url,'_blank');
+
+  if(!page){
+   showMessage('Telegram Browser එක Page එක විවෘත කිරීම අවහිර කළා. නැවත උත්සාහ කරන්න.');
    return;
   }
 
-  startedAt = Date.now();
-  adOpened = true;
-  completed = false;
-  leftGateway = false;
-  returnHandled = false;
+  started=Date.now();
+  store();
 
-  saveState();
+  if(step===0){
+   b1.disabled=true;
+   s1.textContent='පළමු දැන්වීම විවෘත කර ඇත.';
+  }else{
+   b2.disabled=true;
+   s2.textContent='දෙවැනි දැන්වීම විවෘත කර ඇත.';
+  }
 
-  open.disabled = true;
-  status.textContent = 'Ad Page එකෙන් ආපසු පැමිණෙන තෙක් රැඳී සිටින්න.';
+  startCountdown();
+ }
 
-  updateTimer();
-  timerInterval = setInterval(updateTimer, 250);
+ b1.onclick=()=>openAd(a1);
+ b2.onclick=()=>openAd(a2);
+
+ bv.onclick=()=>{
+  if(step===2){
+   location.assign(v);
+  }
  };
 
- // Gateway loses focus when the ad page opens.
- window.addEventListener('blur', () => {
-  if (adOpened && !completed) {
-   leftGateway = true;
-  }
- });
+ paint();
 
- // Gateway receives focus again after returning.
- window.addEventListener('focus', checkReturn);
+ // Restore an active countdown after a page refresh.
+ if(started && step<2){
+  const elapsed=Date.now()-started;
 
- // Mobile / in-app browser visibility changes.
- document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden' && adOpened) {
-   leftGateway = true;
-  }
-
-  if (document.visibilityState === 'visible') {
-   checkReturn();
-  }
- });
-
- // Back navigation and BFCache restoration.
- window.addEventListener('pageshow', (event) => {
-  if (event.persisted) {
-   const saved = getState();
-
-   if (saved && saved.adOpened && !saved.completed) {
-    startedAt = saved.startedAt;
-    adOpened = true;
-    completed = false;
-    leftGateway = true;
-    returnHandled = false;
-    checkReturn();
-   }
-  }
- });
-
- // Restore saved state if the gateway itself reloads.
- const saved = getState();
-
- if (saved) {
-  startedAt = saved.startedAt;
-  adOpened = saved.adOpened;
-  completed = false;
-
-  if (Date.now() - startedAt >= WAIT_TIME) {
-   // Still require returning from the ad page before unlocking.
-   open.disabled = true;
-   status.textContent = 'Ad Page එකෙන් ආපසු පැමිණෙන්න.';
-  } else {
-   open.disabled = false;
+  if(elapsed>=5000){
+   step++;
+   started=0;
+   store();
+   paint();
+  }else{
+   if(step===0)b1.disabled=true;
+   if(step===1)b2.disabled=true;
+   startCountdown();
   }
  }
 }
 
-const v = validURL(video || '');
-const a = validURL(ad || '');
+const v=validURL(video||'');
+const a1=validURL(ad1||'');
+const a2=validURL(ad2||'');
 
-if (v && a) {
- showGate(v, a);
-} else {
+if(v&&a1&&a2){
+ showGate(v,a1,a2);
+}else{
  showGenerator();
 }
 
