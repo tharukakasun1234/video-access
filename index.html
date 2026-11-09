@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08151c">
+<title>Unlock Your Video</title>
+
+<style>
+*{box-sizing:border-box}
+:root{--cyan:#8af9ed;--green:#51f5c3}
+body{
+ margin:0;min-height:100vh;min-height:100dvh;
+ display:flex;align-items:center;justify-content:center;
+ padding:12px;overflow-x:hidden;color:#fff;
+ font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+ background:
+ radial-gradient(ellipse at 12% 15%,rgba(0,255,195,.22),transparent 42%),
+ radial-gradient(ellipse at 90% 85%,rgba(93,111,255,.24),transparent 42%),
+ linear-gradient(145deg,#06151b,#11172b 55%,#07151d);
+}
+body:before,body:after{
+ content:"";position:fixed;border-radius:50%;
+ filter:blur(65px);pointer-events:none;opacity:.42;
+ animation:float 9s ease-in-out infinite alternate;
+}
+body:before{width:220px;height:220px;background:#00e6ba;top:-100px;right:-70px}
+body:after{width:240px;height:240px;background:#526cff;bottom:-110px;left:-90px;animation-delay:-4s}
+@keyframes float{from{transform:translate(0,0)}to{transform:translate(35px,30px)}}
+.wrapper{width:100%;max-width:405px;position:relative;z-index:1}
+.glass{
+ position:relative;overflow:hidden;
+ border:1px solid rgba(255,255,255,.19);
+ background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.035));
+ backdrop-filter:blur(30px) saturate(160%);
+ -webkit-backdrop-filter:blur(30px) saturate(160%);
+ box-shadow:0 25px 75px rgba(0,0,0,.38),inset 0 1px 1px rgba(255,255,255,.3),inset 0 -1px 1px rgba(255,255,255,.05);
+}
+.card{border-radius:30px;padding:24px 21px 18px}
+.card:before{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(125deg,rgba(255,255,255,.13),transparent 35%,transparent 70%,rgba(255,255,255,.045));
+}
+.content{position:relative;z-index:1;text-align:center}
+.logo{
+ width:62px;height:62px;margin:0 auto 12px;border-radius:22px;
+ display:grid;place-items:center;font-size:28px;color:#a6ffec;
+ border:1px solid rgba(255,255,255,.3);
+ background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.035));
+ box-shadow:inset 0 1px 8px #ffffff30,0 8px 25px #0003;
+}
+.logo span{filter:drop-shadow(0 0 10px #54ffdb)}
+h1{font-size:24px;letter-spacing:.2px;margin:0 0 7px;font-weight:750}
+.subtitle{font-size:12px;color:#b9d1d3;margin:0 0 19px;line-height:1.5}
+.input{
+ width:100%;height:46px;margin:6px 0;padding:0 15px;
+ border-radius:14px;border:1px solid rgba(255,255,255,.17);
+ background:rgba(255,255,255,.075);color:#fff;font-size:13px;outline:none;
+}
+.input::placeholder{color:#a9bec1}
+.input:focus{border-color:rgba(104,255,218,.7);box-shadow:0 0 0 3px rgba(70,255,208,.1)}
+.btn{
+ width:100%;min-height:49px;padding:12px 14px;margin:6px 0;
+ border-radius:16px;border:1px solid rgba(255,255,255,.24);
+ color:#f5ffff;font-size:14px;font-weight:700;cursor:pointer;
+ position:relative;overflow:hidden;
+ background:linear-gradient(135deg,rgba(255,255,255,.19),rgba(255,255,255,.055));
+ box-shadow:inset 0 1px 1px #ffffff45,0 8px 20px #0002;
+ backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+ transition:transform .2s,background .2s,opacity .2s;
+ -webkit-tap-highlight-color:transparent;
+}
+.btn:before{
+ content:"";position:absolute;top:0;left:-120%;width:70%;height:100%;
+ transform:skewX(-22deg);
+ background:linear-gradient(90deg,transparent,#ffffff35,transparent);
+ transition:left .65s;
+}
+.btn:not(:disabled):hover:before{left:150%}
+.btn:not(:disabled):active{transform:scale(.97)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.ad-btn{background:linear-gradient(120deg,rgba(38,226,183,.25),rgba(255,255,255,.065));border-color:rgba(101,255,218,.32)}
+.primary{
+ color:#06241f;border-color:rgba(255,255,255,.55);
+ background:linear-gradient(125deg,#a3ffe9,#47e5bf 55%,#64d9ec);
+ box-shadow:0 8px 28px rgba(54,242,195,.22),inset 0 1px 2px #ffffffc0;
+}
+.status{
+ min-height:39px;margin-top:10px;padding:10px 9px;border-radius:13px;
+ border:1px solid rgba(255,255,255,.11);
+ background:rgba(255,255,255,.045);color:#c6dddd;font-size:11px;line-height:1.5;
+}
+.countdown{min-height:20px;margin:5px 0 3px;color:var(--cyan);font-size:12px;font-weight:750;letter-spacing:.5px}
+.progress{height:4px;margin:0 0 8px;border-radius:20px;overflow:hidden;background:#ffffff15}
+.progress span{display:block;width:0;height:100%;border-radius:20px;background:linear-gradient(90deg,#4de9bd,#b0fff1);box-shadow:0 0 12px #4de9bd}
+.unlock-count{
+ margin:12px 0 5px;padding:12px;border-radius:15px;
+ border:1px solid rgba(101,255,218,.25);
+ background:linear-gradient(120deg,rgba(38,226,183,.13),rgba(255,255,255,.045));
+ box-shadow:inset 0 1px 1px #ffffff18;
+}
+.unlock-count .count-label{font-size:10px;color:#a9c8c9;letter-spacing:1.2px;font-weight:700}
+.unlock-count .count-number{
+ margin-top:5px;font-size:25px;font-weight:800;color:#8af9ed;
+ text-shadow:0 0 15px #51f5c355;
+}
+.footer{margin-top:15px;color:#8fa9ac;font-size:10px;letter-spacing:1px}
+.hidden{display:none!important}
+
+/* Warning popup */
+.modal{
+ position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+ padding:20px;background:rgba(3,10,14,.72);
+ -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
+.modal-box{
+ width:100%;max-width:330px;border-radius:24px;padding:24px 20px 18px;text-align:center;
+ background:linear-gradient(145deg,rgba(30,40,55,.96),rgba(14,22,32,.96));
+}
+.modal-icon{font-size:38px;line-height:1;margin-bottom:10px}
+.modal-title{font-size:18px;font-weight:800;margin:0 0 8px;color:#ffd27a}
+.modal-text{font-size:13px;line-height:1.6;color:#cfe2e3;margin:0 0 14px}
+
+@media(max-height:700px){
+ .card{padding:16px 18px 12px;border-radius:26px}
+ .logo{width:45px;height:45px;border-radius:16px;font-size:22px;margin-bottom:7px}
+ h1{font-size:21px;margin-bottom:4px}
+ .subtitle{margin-bottom:10px;font-size:11px}
+ .input{height:39px;margin:4px 0}
+ .btn{min-height:42px;padding:9px;margin:4px 0}
+ .status{margin-top:6px;padding:7px}
+ .unlock-count{margin:7px 0 3px;padding:8px}
+ .unlock-count .count-number{font-size:21px;margin-top:2px}
+ .footer{margin-top:9px}
+}
+</style>
+</head>
+
+<body>
+<div class="wrapper">
+<div class="glass card">
+<div class="content">
+
+ <div class="logo"><span>▶</span></div>
+ <h1>Unlock Your Video</h1>
+ <p class="subtitle">Complete the steps below to unlock your video</p>
+
+ <section id="generator" class="hidden">
+  <input class="input" id="videoUrl" placeholder="Enter Video URL">
+  <input class="input" id="adUrl1" placeholder="Enter First Ad URL">
+  <input class="input" id="adUrl2" placeholder="Enter Second Ad URL">
+  <button class="btn primary" onclick="generateLink()">✦ Generate Link</button>
+  <input class="input hidden" id="generatedLink" readonly>
+  <button class="btn hidden" id="copyBtn" onclick="copyLink()">Copy Link</button>
+  <div class="status" id="generatorStatus">Enter all three links to continue.</div>
+ </section>
+
+ <section id="gateway" class="hidden">
+
+  <div class="unlock-count">
+   <div class="count-label">VIDEO UNLOCK COUNT</div>
+   <div class="count-number" id="unlockCount">Loading...</div>
+  </div>
+
+  <button class="btn ad-btn" id="adButton1" onclick="openAd(1)">↗ &nbsp; Watch First Ad</button>
+  <div class="countdown" id="countdown1"></div>
+  <div class="progress"><span id="progress1"></span></div>
+
+  <button class="btn ad-btn" id="adButton2" onclick="openAd(2)" disabled>↗ &nbsp; Watch Second Ad</button>
+  <div class="countdown" id="countdown2"></div>
+  <div class="progress"><span id="progress2"></span></div>
+
+  <button class="btn primary" id="videoButton" onclick="openVideo()" disabled>▶ &nbsp; Unlock Video</button>
+  <div class="status" id="status">Open the first ad to get started.</div>
+ </section>
+
+ <div class="footer">PREMIUM ACCESS EXPERIENCE</div>
+</div>
+</div>
+</div>
+
+<!-- Warning popup -->
+<div class="modal hidden" id="warnModal" role="alertdialog" aria-modal="true">
+ <div class="glass modal-box">
+  <div class="modal-icon">⚠️</div>
+  <h2 class="modal-title">You came back too early!</h2>
+  <p class="modal-text">Please stay on the ad page for at least <b>5 seconds</b>, then come back to continue. Tap the ad button again to retry.</p>
+  <button class="btn primary" onclick="closeWarning()">Try Again</button>
+ </div>
+</div>
+
+<script>
+const API_URL="https://video-count-api.worldcyber137.workers.dev";
+const HOLD_MS=5000;        // minimum time the user must stay on the ad
+const MIN_AWAY_MS=800;     // shorter "leaves" are treated as flicker and ignored
+const FALLBACK_MS=7000;    // if the browser never reports leaving the page
+const STATE_TTL=30*60*1000;
+
+const params=new URLSearchParams(location.search);
+const video=params.get("video");
+const ad1=params.get("ad1");
+const ad2=params.get("ad2");
+
+const generator=document.getElementById("generator");
+const gateway=document.getElementById("gateway");
+
+function validUrl(value){
+ try{
+  const u=new URL(value);
+  return u.protocol==="https:"||u.protocol==="http:";
+ }catch(e){return false}
+}
+
+if(video&&ad1&&ad2)gateway.classList.remove("hidden");
+else generator.classList.remove("hidden");
+
+/* ---------- Link generator ---------- */
+function generateLink(){
+ const v=document.getElementById("videoUrl").value.trim();
+ const a1=document.getElementById("adUrl1").value.trim();
+ const a2=document.getElementById("adUrl2").value.trim();
+
+ if(!validUrl(v)||!validUrl(a1)||!validUrl(a2)){
+  document.getElementById("generatorStatus").textContent="Please enter three valid URLs.";
+  return;
+ }
+
+ const link=location.origin+location.pathname+
+ "?video="+encodeURIComponent(v)+
+ "&ad1="+encodeURIComponent(a1)+
+ "&ad2="+encodeURIComponent(a2);
+
+ const output=document.getElementById("generatedLink");
+ output.value=link;
+ output.classList.remove("hidden");
+ document.getElementById("copyBtn").classList.remove("hidden");
+ document.getElementById("generatorStatus").textContent="Your link is ready!";
+}
+
+function copyLink(){
+ const field=document.getElementById("generatedLink");
+ field.select();
+ field.setSelectionRange(0,99999);
+
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(field.value).then(()=>{
+   document.getElementById("generatorStatus").textContent="Link copied successfully!";
+  }).catch(()=>fallbackCopy(field));
+ }else fallbackCopy(field);
+}
+
+function fallbackCopy(field){
+ let ok=false;
+ try{ok=document.execCommand("copy")}catch(e){}
+ document.getElementById("generatorStatus").textContent=
+  ok?"Link copied successfully!":"Could not copy. Please copy the link manually.";
+}
+
+/* ---------- Unlock counter ---------- */
+const countDisplay=document.getElementById("unlockCount");
+
+async function getUnlockCount(){
+ try{
+  const query=new URLSearchParams({video:video,ad1:ad1,ad2:ad2});
+  const res=await fetch(API_URL+"/api/count?"+query.toString());
+  if(!res.ok)throw new Error("Count request failed");
+  const data=await res.json();
+  countDisplay.textContent=Number(data.count||0).toLocaleString();
+ }catch(error){
+  countDisplay.textContent="–";
+ }
+}
+
+async function increaseUnlockCount(){
+ try{
+  const res=await fetch(API_URL+"/api/unlock",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({video:video,ad1:ad1,ad2:ad2}),
+   keepalive:true   // request survives even if the page navigates away (Telegram)
+  });
+  if(!res.ok)throw new Error("Unlock count failed");
+  const data=await res.json();
+  countDisplay.textContent=Number(data.count||0).toLocaleString();
+ }catch(error){
+  /* keep the last number shown */
+ }
+}
+
+/* ---------- State ---------- */
+const storageKey="video_access_"+location.search;
+
+let step=0;          // 0 = first ad, 1 = second ad, 2 = video ready
+let active=false;    // an ad is currently open
+let openedAt=0;      // when the ad button was tapped
+let awayStart=0;     // when the user left this page (0 = still here)
+let leftEver=false;  // did we ever detect the user leaving?
+let counted=false;   // unlock already counted for this link
+let ticker=null;
+
+(function loadState(){
+ try{
+  const raw=sessionStorage.getItem(storageKey)||localStorage.getItem(storageKey);
+  if(!raw)return;
+  const s=JSON.parse(raw);
+  if(!s||Date.now()-(s.savedAt||0)>STATE_TTL)return;
+  step=s.step||0;
+  active=!!s.active&&step<2;
+  openedAt=s.openedAt||0;
+  awayStart=s.awayStart||0;
+  leftEver=!!s.leftEver;
+  counted=!!s.counted;
+ }catch(e){}
+})();
+
+function save(){
+ const data=JSON.stringify({step,active,openedAt,awayStart,leftEver,counted,savedAt:Date.now()});
+ try{sessionStorage.setItem(storageKey,data)}catch(e){}
+ try{localStorage.setItem(storageKey,data)}catch(e){}
+}
+
+const b1=document.getElementById("adButton1");
+const b2=document.getElementById("adButton2");
+const bv=document.getElementById("videoButton");
+const statusBox=document.getElementById("status");
+const modal=document.getElementById("warnModal");
+
+function setStatus(t){statusBox.textContent=t}
+
+function paint(){
+ b1.disabled=step!==0||active;
+ b2.disabled=step!==1||active;
+ bv.disabled=step!==2;
+
+ for(let n=1;n<=2;n++){
+  const c=document.getElementById("countdown"+n);
+  const p=document.getElementById("progress"+n);
+  if(step>=n){            // finished
+   c.textContent="Completed ✓";
+   p.style.width="100%";
+  }else if(!(active&&step===n-1)){   // idle
+   c.textContent="";
+   p.style.width="0";
+  }
+ }
+
+ if(active)setStatus("Stay on the ad for at least 5 seconds, then come back here.");
+ else if(step===0)setStatus("Open the first ad and stay on it for 5 seconds.");
+ else if(step===1)setStatus("First ad completed! Now open the second ad.");
+ else setStatus("All steps completed. Your video is ready!");
+}
+
+/* ---------- Warning popup ---------- */
+function showWarning(){modal.classList.remove("hidden")}
+function closeWarning(){modal.classList.add("hidden")}
+
+/* ---------- Ad flow ---------- */
+function openAd(number){
+ if(active||(number===1&&step!==0)||(number===2&&step!==1))return;
+
+ const url=number===1?ad1:ad2;
+ if(!validUrl(url))return;
+
+ // Save state BEFORE opening, because in some in-app browsers
+ // (Telegram) the page can be replaced by the ad.
+ active=true;
+ openedAt=Date.now();
+ awayStart=0;
+ leftEver=false;
+ save();
+ paint();
+ runCountdown(number);
+
+ let opened=null;
+ try{opened=window.open(url,"_blank")}catch(e){}
+
+ if(!opened){
+  // Some in-app browsers return null even when the page opened.
+  // If nothing happened after a moment, open the ad in this tab instead.
+  setTimeout(()=>{
+   if(active&&!leftEver&&!awayStart&&document.visibilityState==="visible"){
+    location.href=url;
+   }
+  },700);
+ }
+}
+
+function runCountdown(number){
+ clearInterval(ticker);
+ const count=document.getElementById("countdown"+number);
+ const bar=document.getElementById("progress"+number);
+
+ function update(){
+  if(!active){clearInterval(ticker);return}
+
+  const base=awayStart||openedAt;
+  const elapsed=Date.now()-base;
+  const remaining=Math.max(0,HOLD_MS-elapsed);
+
+  if(remaining>0){
+   count.textContent="Stay on the ad · "+Math.ceil(remaining/1000)+"s";
+  }else if(awayStart){
+   count.textContent="Done! You can come back now ✓";
+  }else{
+   count.textContent="Almost there...";
+  }
+  bar.style.width=Math.min(100,elapsed/HOLD_MS*100)+"%";
+
+  // Fallback: the browser never told us the user left the page
+  // (some in-app overlays). Complete after the fallback time.
+  if(!awayStart&&!leftEver&&Date.now()-openedAt>=FALLBACK_MS){
+   completeStep();
+  }
+ }
+
+ update();
+ ticker=setInterval(update,200);
+}
+
+function completeStep(){
+ clearInterval(ticker);
+ active=false;
+ awayStart=0;
+ leftEver=false;
+ step++;
+ save();
+ paint();
+}
+
+function failStep(){
+ clearInterval(ticker);
+ active=false;
+ awayStart=0;
+ leftEver=false;
+ save();
+ paint();
+ showWarning();
+}
+
+/* The user left this page (switched tab, opened the ad, blurred the window) */
+function markAway(){
+ if(!active||awayStart)return;
+ awayStart=Date.now();
+ save();
+}
+
+/* The user came back to this page */
+function markBack(){
+ if(!active||!awayStart)return;
+ const away=Date.now()-awayStart;
+
+ if(away<MIN_AWAY_MS){      // just a flicker, ignore
+  awayStart=0;
+  save();
+  return;
+ }
+
+ leftEver=true;
+ if(away>=HOLD_MS)completeStep();
+ else failStep();
+}
+
+document.addEventListener("visibilitychange",()=>{
+ if(document.hidden)markAway();else markBack();
+});
+window.addEventListener("pagehide",markAway);
+window.addEventListener("pageshow",(e)=>{if(e.persisted)markBack()});
+window.addEventListener("blur",markAway);
+window.addEventListener("focus",markBack);
+
+/* ---------- Unlock video (Telegram) ---------- */
+let unlockClicked=false;
+
+function openVideo(){
+ if(step!==2||!validUrl(video)||unlockClicked)return;
+
+ unlockClicked=true;
+ bv.disabled=true;
+
+ let destination=video.trim().replace(/^https?:\/\/telegram\.me\//i,"https://t.me/");
+
+ // Count first (keepalive keeps the request alive), only once per unlock
+ if(!counted){
+  counted=true;
+  save();
+  increaseUnlockCount();
+ }
+
+ let opened=null;
+ try{opened=window.open(destination,"_blank")}catch(e){}
+ if(!opened)location.href=destination;
+
+ setTimeout(()=>{
+  unlockClicked=false;
+  bv.disabled=step!==2;
+ },1500);
+}
+
+/* ---------- Start ---------- */
+if(video&&ad1&&ad2){
+ paint();
+ getUnlockCount();
+
+ if(active){
+  // The page was reloaded or reopened while an ad was open
+  // (this is what happens inside Telegram's in-app browser).
+  const from=awayStart||openedAt;
+  const away=from?Date.now()-from:0;
+  if(away>=HOLD_MS)completeStep();
+  else failStep();
+ }
+}
+</script>
+</body>
+</html>
