@@ -228,6 +228,15 @@ h1{font-size:25px;letter-spacing:-.3px;margin:0 0 6px;font-weight:800;
 }
 .footer{margin-top:14px;color:#8aa3ad;font-size:9.5px;letter-spacing:1.6px}
 
+/* ---------- Page ads (Adsterra) ---------- */
+.ad-slot{margin:18px 0 0;text-align:center}
+.ad-slot small{display:block;margin-bottom:6px;font-size:9.5px;letter-spacing:1.4px;color:#8aa3ad}
+.ad-slot-inner{overflow:hidden;border-radius:14px}
+
+.ad-row{display:flex;align-items:center;gap:8px}
+.ad-row .input{flex:1;min-width:0}
+.ad-row .icon-btn{flex:none}
+
 /* ---------- Generator ---------- */
 .input{
  width:100%;height:48px;margin:6px 0;padding:0 16px;
@@ -351,14 +360,14 @@ h1{font-size:25px;letter-spacing:-.3px;margin:0 0 6px;font-weight:800;
 
  <section id="generator" class="hidden">
   <input class="input" id="videoUrl" placeholder="Enter Video URL">
-  <input class="input" id="adUrl1" placeholder="Enter First Ad URL">
-  <input class="input" id="adUrl2" placeholder="Enter Second Ad URL">
+  <div id="adInputs"></div>
+  <button class="btn" id="addAdBtn" type="button" onclick="addAdInput()"><span>＋ Add Another Ad</span></button>
   <input class="input" id="adminKey" type="password" autocomplete="off" placeholder="Admin key (only if you set one)">
   <button class="btn primary" onclick="generateLink()"><span>✦ Generate Link</span></button>
   <input class="input hidden" id="generatedLink" readonly>
   <button class="btn hidden" id="copyBtn" onclick="copyLink()"><span>Copy Link</span></button>
   <button class="btn hidden" id="newBtn" onclick="resetGenerator()"><span>＋ Create Another Link</span></button>
-  <div class="status" id="generatorStatus">Enter all three links to continue.</div>
+  <div class="status" id="generatorStatus">Enter the video link and your ad links to continue.</div>
  </section>
 
  <section id="gateway" class="hidden">
@@ -366,32 +375,10 @@ h1{font-size:25px;letter-spacing:-.3px;margin:0 0 6px;font-weight:800;
   <div class="unlock-count">
    <span class="live-dot"></span>
    <span class="count-number" id="unlockCount">Loading...</span>
-   <span class="count-label">UNLOCKS</span>
+   <span class="count-label">VIEWS</span>
   </div>
 
-  <div class="step is-active" id="step1">
-   <div class="step-head">
-    <div class="badge"><span class="num">1</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-    <div class="step-title">First Ad<small>Stay on the ad for 5 seconds</small></div>
-   </div>
-   <button class="btn ad-btn" id="adButton1" onclick="openAd(1)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg><span>Watch First Ad</span>
-   </button>
-   <div class="countdown" id="countdown1"></div>
-   <div class="progress"><span id="progress1"></span></div>
-  </div>
-
-  <div class="step is-locked" id="step2">
-   <div class="step-head">
-    <div class="badge"><span class="num">2</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-    <div class="step-title">Second Ad<small>Stay on the ad for 5 seconds</small></div>
-   </div>
-   <button class="btn ad-btn" id="adButton2" onclick="openAd(2)" disabled>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg><span>Watch Second Ad</span>
-   </button>
-   <div class="countdown" id="countdown2"></div>
-   <div class="progress"><span id="progress2"></span></div>
-  </div>
+  <div id="steps"></div>
 
   <div class="final">
    <div class="confetti" id="confetti"></div>
@@ -404,6 +391,9 @@ h1{font-size:25px;letter-spacing:-.3px;margin:0 0 6px;font-weight:800;
    <div class="status" id="status">Open the first ad to get started.</div>
   </div>
  </section>
+
+ <!-- Page ad (Adsterra Native Banner). Hidden unless it is set up in ADSTERRA below. -->
+ <div class="ad-slot hidden" id="adSlot"><small>ADVERTISEMENT</small><div class="ad-slot-inner" id="adSlotInner"></div></div>
 
  <div class="footer">PREMIUM ACCESS EXPERIENCE</div>
 </div>
@@ -427,30 +417,51 @@ h1{font-size:25px;letter-spacing:-.3px;margin:0 0 6px;font-weight:800;
  </div>
 </aside>
 
-<!-- Warning popup -->
-<div class="modal hidden" id="warnModal" role="alertdialog" aria-modal="true">
- <div class="glass modal-box">
-  <div class="content">
-   <div class="modal-icon">⚠️</div>
-   <h2 class="modal-title">You came back too early!</h2>
-   <p class="modal-text">Please stay on the ad page for at least <b>5 seconds</b>, then come back to continue. Tap the ad button again to retry.</p>
-   <button class="btn primary" onclick="closeWarning()"><span>Try Again</span></button>
-  </div>
- </div>
-</div>
-
 <script>
 const API_URL="https://video-count-api.worldcyber137.workers.dev";
 const HOLD_MS=5000;        // minimum time the user must stay on the ad
 const MIN_AWAY_MS=800;     // shorter "leaves" are treated as flicker and ignored
 const FALLBACK_MS=7000;    // if the browser never reports leaving the page
 const ACTIVE_TTL=5*60*1000;     // hand-off for an ad that is currently open
+const MAX_ADS=8;
+
+/* ---------- Adsterra page ads ----------
+   Copy the values from your Adsterra dashboard (Websites -> Ad Units -> Get code).
+   Leave "" to keep a format switched off. They load only on the unlock page, never on the generator.
+
+   Native Banner: Adsterra gives you a script tag whose src ends in invoke.js, plus a div with an
+   id like container-abc123.  nativeSrc = that src,  nativeContainerId = that id.
+
+   Social Bar: Adsterra gives you one script tag.  socialBarSrc = its src.
+
+   Popunder (an ad opens when the visitor clicks anywhere): Adsterra gives you one script tag.
+   popunderSrc = its src.
+   popunderFromStart:false -> the popunder starts only AFTER the visitor finished all the ad steps
+                              (recommended: it cannot disturb the 5-second check).
+   popunderFromStart:true  -> it is active from the moment the page opens (it can open extra tabs
+                              while the visitor is doing the steps and confuse the 5-second check).
+
+   Copy only the values (the addresses inside the quotes), not the whole tags.              */
+const ADSTERRA={
+ nativeSrc:"",
+ nativeContainerId:"",
+ socialBarSrc:"",
+ popunderSrc:"https://benchform.org/1/fcd78a654fae39b45f2fb15ee8111f1b",
+ popunderFromStart:true
+};
+const ORDINALS=["First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eighth"];
 
 const params=new URLSearchParams(location.search);
 const linkId=params.get("id");      // short link:  ?id=XXXXXXXX
 let video=params.get("video");      // old long link style (still supported)
-let ad1=params.get("ad1");
-let ad2=params.get("ad2");
+let ads=[];
+if(!linkId){
+ for(let i=1;i<=MAX_ADS;i++){
+  const a=params.get("ad"+i);
+  if(!a)break;
+  ads.push(a);
+ }
+}
 
 const generator=document.getElementById("generator");
 const gateway=document.getElementById("gateway");
@@ -462,19 +473,73 @@ function validUrl(value){
  }catch(e){return false}
 }
 
-if(linkId||(video&&ad1&&ad2))gateway.classList.remove("hidden");
+if(linkId||(video&&ads.length))gateway.classList.remove("hidden");
 else generator.classList.remove("hidden");
 
 /* ---------- Link generator ---------- */
+const adInputsBox=document.getElementById("adInputs");
+const addAdBtn=document.getElementById("addAdBtn");
+
+function adInputEls(){return Array.from(adInputsBox.querySelectorAll(".ad-input"))}
+
+function renumberAdInputs(){
+ const els=adInputEls();
+ els.forEach((el,i)=>{el.placeholder="Enter Ad URL "+(i+1)});
+ document.querySelectorAll("#adInputs .icon-btn").forEach(b=>{
+  b.style.visibility=els.length>1?"visible":"hidden";
+ });
+ addAdBtn.classList.toggle("hidden",els.length>=MAX_ADS);
+}
+
+function hideStaleLink(){
+ const out=document.getElementById("generatedLink");
+ if(out.classList.contains("hidden"))return;
+ out.classList.add("hidden");
+ document.getElementById("copyBtn").classList.add("hidden");
+ document.getElementById("newBtn").classList.add("hidden");
+ document.getElementById("generatorStatus").textContent="Enter the video link and your ad links to continue.";
+}
+
+function addAdInput(value){
+ if(adInputEls().length>=MAX_ADS)return;
+ const row=document.createElement("div");
+ row.className="ad-row";
+
+ const inp=document.createElement("input");
+ inp.className="input ad-input";
+ inp.type="text";
+ inp.value=typeof value==="string"?value:"";
+ inp.setAttribute("autocomplete","off");
+ inp.addEventListener("input",hideStaleLink);
+
+ const x=document.createElement("button");
+ x.type="button";
+ x.className="icon-btn";
+ x.textContent="✕";
+ x.setAttribute("aria-label","Remove this ad");
+ x.onclick=()=>{
+  if(adInputEls().length<=1)return;
+  row.remove();
+  renumberAdInputs();
+  hideStaleLink();
+ };
+
+ row.appendChild(inp);
+ row.appendChild(x);
+ adInputsBox.appendChild(row);
+ renumberAdInputs();
+}
+
+document.getElementById("videoUrl").addEventListener("input",hideStaleLink);
+
 async function generateLink(){
  const v=document.getElementById("videoUrl").value.trim();
- const a1=document.getElementById("adUrl1").value.trim();
- const a2=document.getElementById("adUrl2").value.trim();
+ const list=adInputEls().map(e=>e.value.trim());
  const adminKey=getAdminKey();
  const genStatus=document.getElementById("generatorStatus");
 
- if(!validUrl(v)||!validUrl(a1)||!validUrl(a2)){
-  genStatus.textContent="Please enter three valid URLs.";
+ if(!validUrl(v)||!list.length||list.some(a=>!validUrl(a))){
+  genStatus.textContent="Please enter a valid video URL and a valid URL for every ad.";
   return;
  }
 
@@ -485,7 +550,7 @@ async function generateLink(){
   const res=await fetch(API_URL+"/api/create",{
    method:"POST",
    headers:{"Content-Type":"application/json","X-Admin-Key":adminKey},
-   body:JSON.stringify({video:v,ad1:a1,ad2:a2})
+   body:JSON.stringify({video:v,ads:list,ad1:list[0],ad2:list[1]||list[0]})
   });
   if(res.status===401){
    genStatus.textContent="Wrong admin key.";
@@ -499,10 +564,8 @@ async function generateLink(){
   genStatus.textContent="Your short link is ready!";
  }catch(e){
   // Fallback: the old long link, so you are never stuck
-  link=location.origin+location.pathname+
-   "?video="+encodeURIComponent(v)+
-   "&ad1="+encodeURIComponent(a1)+
-   "&ad2="+encodeURIComponent(a2);
+  link=location.origin+location.pathname+"?video="+encodeURIComponent(v)+
+   list.map((a,i)=>"&ad"+(i+1)+"="+encodeURIComponent(a)).join("");
   genStatus.textContent="Short link service is unavailable, so a long link was created instead.";
  }
 
@@ -512,33 +575,23 @@ async function generateLink(){
  document.getElementById("copyBtn").classList.remove("hidden");
  document.getElementById("newBtn").classList.remove("hidden");
 
- saveHistory({link:link,id:newId,video:v,ad1:a1,ad2:a2,created:Date.now()});
+ saveHistory({link:link,id:newId,video:v,ads:list,created:Date.now()});
  refreshBadge();
 }
 
 /* Clear the form so another link can be made without refreshing the page */
 function resetGenerator(){
- ["videoUrl","adUrl1","adUrl2"].forEach(id=>{document.getElementById(id).value=""});
+ document.getElementById("videoUrl").value="";
+ adInputsBox.innerHTML="";
+ addAdInput();addAdInput();
  const out=document.getElementById("generatedLink");
  out.value="";
  out.classList.add("hidden");
  document.getElementById("copyBtn").classList.add("hidden");
  document.getElementById("newBtn").classList.add("hidden");
- document.getElementById("generatorStatus").textContent="Enter all three links to continue.";
+ document.getElementById("generatorStatus").textContent="Enter the video link and your ad links to continue.";
  document.getElementById("videoUrl").focus();
 }
-
-/* If the inputs are edited after a link was made, hide the old (now outdated) link */
-["videoUrl","adUrl1","adUrl2"].forEach(id=>{
- document.getElementById(id).addEventListener("input",()=>{
-  const out=document.getElementById("generatedLink");
-  if(out.classList.contains("hidden"))return;
-  out.classList.add("hidden");
-  document.getElementById("copyBtn").classList.add("hidden");
-  document.getElementById("newBtn").classList.add("hidden");
-  document.getElementById("generatorStatus").textContent="Enter all three links to continue.";
- });
-});
 
 function copyLink(){
  const field=document.getElementById("generatedLink");
@@ -657,7 +710,9 @@ function makeRow(it,countText,onDelete){
 
  const sub=document.createElement("div");
  sub.className="hist-sub";
- sub.textContent="▶ "+shortHost(it.video)+(it.created?"  ·  "+fmtDate(it.created):"");
+ sub.textContent="▶ "+shortHost(it.video)+
+  (it.adCount?"  ·  "+it.adCount+(it.adCount===1?" ad":" ads"):"")+
+  (it.created?"  ·  "+fmtDate(it.created):"");
 
  const act=document.createElement("div");
  act.className="hist-actions";
@@ -745,9 +800,9 @@ async function renderHistory(){
   showMsg(list,offline
    ?"Could not reach the server.<br>Showing links saved on this device."
    :"To see your links on every device, add a <b>CREATE_KEY</b> secret to your Worker (Settings → Variables and Secrets), then open this panel again.","6px 6px 14px");
-  const items=loadHistory();
-  items.forEach(it=>{
-   list.appendChild(makeRow(it,"–",()=>{
+  loadHistory().forEach(it=>{
+   const item=Object.assign({},it,{adCount:Array.isArray(it.ads)?it.ads.length:0});
+   list.appendChild(makeRow(item,"–",()=>{
     storeHistory(loadHistory().filter(x=>x.link!==it.link));
     updateHistBadge();
     renderHistory();
@@ -765,9 +820,10 @@ async function renderHistory(){
   const it={
    link:location.origin+location.pathname+"?id="+encodeURIComponent(s.id),
    video:s.video,
+   adCount:s.ad_count,
    created:serverDate(s.created_at)
   };
-  list.appendChild(makeRow(it,Number(s.count||0).toLocaleString()+" unlocks",()=>deleteServerLink(s.id)));
+  list.appendChild(makeRow(it,Number(s.count||0).toLocaleString()+" views",()=>deleteServerLink(s.id)));
  });
 }
 
@@ -789,11 +845,16 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHistory()});
 /* ---------- Unlock counter ---------- */
 const countDisplay=document.getElementById("unlockCount");
 
+// old long-link style query: ?video=..&ad1=..&ad2=..&ad3=..
+function legacyParams(){
+ const q=new URLSearchParams({video:video});
+ ads.forEach((a,i)=>q.set("ad"+(i+1),a));
+ return q;
+}
+
 async function getUnlockCount(){
  try{
-  const query=linkId
-   ?new URLSearchParams({id:linkId})
-   :new URLSearchParams({video:video,ad1:ad1,ad2:ad2});
+  const query=linkId?new URLSearchParams({id:linkId}):legacyParams();
   const res=await fetch(API_URL+"/api/count?"+query.toString());
   if(!res.ok)throw new Error("Count request failed");
   const data=await res.json();
@@ -808,7 +869,7 @@ async function increaseUnlockCount(){
   const res=await fetch(API_URL+"/api/unlock",{
    method:"POST",
    headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({video:video,ad1:ad1,ad2:ad2}),
+   body:JSON.stringify({video:video,ad1:ads[0],ad2:ads[1],ads:ads}),
    keepalive:true   // request survives even if the page navigates away (Telegram)
   });
   if(!res.ok)throw new Error("Unlock count failed");
@@ -822,7 +883,7 @@ async function increaseUnlockCount(){
 /* ---------- State ---------- */
 const storageKey="video_access_"+location.search;
 
-let step=0;          // 0 = first ad, 1 = second ad, 2 = video ready
+let step=0;          // how many ads are finished; step === ads.length means "video ready"
 let active=false;    // an ad is currently open
 let openedAt=0;      // when the ad button was tapped
 let awayStart=0;     // when the user left this page (0 = still here)
@@ -845,7 +906,7 @@ let ticker=null;
   // restored, so every new visit starts again from step 1.
   if(!s.active||Date.now()-(s.savedAt||0)>ACTIVE_TTL)return;
   step=s.step||0;
-  active=!!s.active&&step<2;
+  active=!!s.active;
   openedAt=s.openedAt||0;
   awayStart=s.awayStart||0;
   leftEver=!!s.leftEver;
@@ -866,12 +927,9 @@ function save(){
  }catch(e){}
 }
 
-const b1=document.getElementById("adButton1");
-const b2=document.getElementById("adButton2");
 const bv=document.getElementById("videoButton");
 const statusBox=document.getElementById("status");
-const modal=document.getElementById("warnModal");
-const stepEls=[document.getElementById("step1"),document.getElementById("step2")];
+const stepsBox=document.getElementById("steps");
 
 function setStatus(t){statusBox.textContent=t}
 
@@ -880,43 +938,63 @@ function setStepState(el,state){
  el.classList.add("is-"+state);
 }
 
+/* One card per ad (built from the ads list, so any number of ads works) */
+function buildSteps(){
+ stepsBox.innerHTML="";
+ const check='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+ const arrow='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>';
+ ads.forEach((u,i)=>{
+  const n=i+1;
+  const name=ORDINALS[i]||("Ad "+n);
+  const el=document.createElement("div");
+  el.className="step is-locked";
+  el.id="step"+n;
+  el.innerHTML=
+   '<div class="step-head"><div class="badge"><span class="num">'+n+'</span>'+check+'</div>'+
+   '<div class="step-title">'+name+' Ad<small>Stay on the ad for 5 seconds</small></div></div>'+
+   '<button class="btn ad-btn" id="adButton'+n+'" disabled>'+arrow+'<span>Watch '+name+' Ad</span></button>'+
+   '<div class="countdown" id="countdown'+n+'"></div>'+
+   '<div class="progress"><span id="progress'+n+'"></span></div>';
+  stepsBox.appendChild(el);
+  el.querySelector("button").addEventListener("click",()=>openAd(n));
+ });
+}
+
 function paint(){
- b1.disabled=step!==0||active;
- b2.disabled=step!==1||active;
- bv.disabled=step!==2;
- bv.classList.toggle("ready",step===2);
+ const total=ads.length;
 
- // visual state of each step card
- setStepState(stepEls[0],step>=1?"done":"active");
- setStepState(stepEls[1],step>=2?"done":(step===1?"active":"locked"));
-
- for(let n=1;n<=2;n++){
+ for(let n=1;n<=total;n++){
+  const btn=document.getElementById("adButton"+n);
+  const el=document.getElementById("step"+n);
   const c=document.getElementById("countdown"+n);
   const p=document.getElementById("progress"+n);
-  if(step>=n){            // finished
+
+  btn.disabled=(step!==n-1)||active;
+  setStepState(el,step>=n?"done":(step===n-1?"active":"locked"));
+
+  if(step>=n){                          // finished
    c.textContent="Completed ✓";
    p.style.width="100%";
-  }else if(!(active&&step===n-1)){   // idle
+  }else if(!(active&&step===n-1)){      // idle
    c.textContent="";
    p.style.width="0";
   }
  }
 
+ bv.disabled=step!==total;
+ bv.classList.toggle("ready",total>0&&step===total);
+
  if(active)setStatus("Stay on the ad for at least 5 seconds, then come back here.");
  else if(step===0)setStatus("Open the first ad and stay on it for 5 seconds.");
- else if(step===1)setStatus("First ad completed! Now open the second ad.");
+ else if(step<total)setStatus("Ad "+step+" of "+total+" completed! Now open the next ad.");
  else setStatus("All steps completed. Your video is ready!");
 }
 
-/* ---------- Warning popup ---------- */
-function showWarning(){modal.classList.remove("hidden")}
-function closeWarning(){modal.classList.add("hidden")}
-
 /* ---------- Ad flow ---------- */
 function openAd(number){
- if(active||(number===1&&step!==0)||(number===2&&step!==1))return;
+ if(active||number!==step+1)return;
 
- const url=number===1?ad1:ad2;
+ const url=ads[number-1];
  if(!validUrl(url))return;
 
  // Save state BEFORE opening, because in some in-app browsers
@@ -983,7 +1061,10 @@ function completeStep(){
  step++;
  save();
  paint();
- if(step===2)celebrate();
+ if(step===ads.length){
+  celebrate();
+  loadPopunder();     // all steps done: popunder can start now
+ }
 }
 
 function failStep(){
@@ -993,7 +1074,8 @@ function failStep(){
  leftEver=false;
  save();
  paint();
- showWarning();
+ // No popup: just a short message in the status box, and the ad button is active again
+ setStatus("You came back too early. Stay on the ad for 5 seconds, then tap the ad button again.");
 }
 
 /* The user left this page (switched tab, opened the ad, blurred the window) */
@@ -1062,13 +1144,13 @@ const videoLabel=document.getElementById("videoLabel");
 
 function resetUnlockButton(){
  unlockClicked=false;
- bv.disabled=step!==2;
+ bv.disabled=step!==ads.length;
  bv.classList.remove("loading");
  videoLabel.textContent="Unlock Video";
 }
 
 async function openVideo(){
- if(step!==2||unlockClicked)return;
+ if(!ads.length||step!==ads.length||unlockClicked)return;
  if(!linkId&&!validUrl(video))return;
 
  unlockClicked=true;
@@ -1121,10 +1203,73 @@ async function openVideo(){
  setTimeout(resetUnlockButton,1800);
 }
 
+/* ---------- Adsterra page ads ---------- */
+let pageAdsLoaded=false;
+
+function adSrc(v){
+ v=String(v||"").trim();
+ if(v.indexOf("//")===0)v="https:"+v;
+ try{
+  const u=new URL(v);
+  return u.protocol==="https:"?u.href:"";
+ }catch(e){return ""}
+}
+
+function addAdScript(src,parent,asyncCfg){
+ const s=document.createElement("script");
+ s.src=src;
+ s.async=true;
+ if(asyncCfg)s.setAttribute("data-cfasync","false");
+ parent.appendChild(s);
+}
+
+function loadPageAds(){
+ if(pageAdsLoaded)return;
+ pageAdsLoaded=true;
+
+ const nSrc=adSrc(ADSTERRA.nativeSrc);
+ const nId=String(ADSTERRA.nativeContainerId||"").trim();
+ const sSrc=adSrc(ADSTERRA.socialBarSrc);
+
+ if(nSrc&&/^[\w-]+$/.test(nId)){
+  const slot=document.getElementById("adSlot");
+  const inner=document.getElementById("adSlotInner");
+  const box=document.createElement("div");
+  box.id=nId;
+  inner.appendChild(box);
+  slot.classList.remove("hidden");
+  addAdScript(nSrc,inner,true);
+
+  // No ad came back (no fill / blocked): hide the empty "ADVERTISEMENT" label
+  setTimeout(()=>{
+   if(inner.offsetHeight<20)slot.classList.add("hidden");
+  },6000);
+ }
+
+ if(sSrc)addAdScript(sSrc,document.body,false);
+
+ if(ADSTERRA.popunderFromStart)loadPopunder();
+}
+
+/* Popunder: loaded once, only on the unlock page */
+let popunderLoaded=false;
+function loadPopunder(){
+ if(popunderLoaded)return;
+ const src=adSrc(ADSTERRA.popunderSrc);
+ if(!src)return;
+ popunderLoaded=true;
+ addAdScript(src,document.body,false);
+}
+
 /* ---------- Start ---------- */
 function begin(){
+ if(step>ads.length)step=ads.length;
+ if(active&&step>=ads.length)active=false;
+
+ buildSteps();
  paint();
  getUnlockCount();
+ loadPageAds();
 
  if(active){
   // The page was reloaded or reopened while an ad was open
@@ -1138,19 +1283,24 @@ function begin(){
 
 if(linkId){
  // Short link: load the ad URLs from the server first
- b1.disabled=true;
  setStatus("Loading your link...");
  fetch(API_URL+"/api/link?id="+encodeURIComponent(linkId))
   .then(r=>{if(!r.ok)throw new Error("not found");return r.json()})
-  .then(d=>{ad1=d.ad1;ad2=d.ad2;begin()})
+  .then(d=>{
+   const list=Array.isArray(d.ads)&&d.ads.length?d.ads:[d.ad1,d.ad2];
+   ads=list.filter(Boolean);
+   if(!ads.length)throw new Error("no ads");
+   begin();
+  })
   .catch(()=>{
    countDisplay.textContent="–";
    setStatus("This link is invalid or no longer available.");
   });
-}else if(video&&ad1&&ad2){
+}else if(video&&ads.length){
  begin();
 }else{
- // Generator page: show the "My Links" button
+ // Generator page
+ addAdInput();addAdInput();
  document.getElementById("histFab").classList.remove("hidden");
  updateHistBadge();
  try{document.getElementById("adminKey").value=localStorage.getItem(KEY_STORE)||""}catch(e){}
