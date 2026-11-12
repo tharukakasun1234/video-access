@@ -984,7 +984,7 @@ function paint(){
  bv.disabled=step!==total;
  bv.classList.toggle("ready",total>0&&step===total);
 
- if(active)setStatus("Stay on the ad for at least 5 seconds, then come back here.");
+ if(active)setStatus("Stay on the ad for 5 seconds, then come back here.");
  else if(step===0)setStatus("Open the first ad and stay on it for 5 seconds.");
  else if(step<total)setStatus("Ad "+step+" of "+total+" completed! Now open the next ad.");
  else setStatus("All steps completed. Your video is ready!");
@@ -1029,8 +1029,8 @@ function runCountdown(number){
  function update(){
   if(!active){clearInterval(ticker);return}
 
-  const base=awayStart||openedAt;
-  const elapsed=Date.now()-base;
+  // The 5 seconds are counted from the moment the ad button was tapped.
+  const elapsed=Date.now()-openedAt;
   const remaining=Math.max(0,HOLD_MS-elapsed);
 
   if(remaining>0){
@@ -1042,9 +1042,10 @@ function runCountdown(number){
   }
   bar.style.width=Math.min(100,elapsed/HOLD_MS*100)+"%";
 
-  // Fallback: the browser never told us the user left the page
-  // (some in-app overlays). Complete after the fallback time.
-  if(!awayStart&&!leftEver&&Date.now()-openedAt>=FALLBACK_MS){
+  // Finish when 5 seconds have passed, the visitor is on this page, and we saw them
+  // leave at least once. If we never saw them leave (some in-app overlays do not report
+  // it), finish after the fallback time instead.
+  if(!awayStart&&elapsed>=HOLD_MS&&(leftEver||elapsed>=FALLBACK_MS)){
    completeStep();
   }
  }
@@ -1067,17 +1068,6 @@ function completeStep(){
  }
 }
 
-function failStep(){
- clearInterval(ticker);
- active=false;
- awayStart=0;
- leftEver=false;
- save();
- paint();
- // No popup: just a short message in the status box, and the ad button is active again
- setStatus("You came back too early. Stay on the ad for 5 seconds, then tap the ad button again.");
-}
-
 /* The user left this page (switched tab, opened the ad, blurred the window) */
 function markAway(){
  if(!active||awayStart)return;
@@ -1089,16 +1079,18 @@ function markAway(){
 function markBack(){
  if(!active||!awayStart)return;
  const away=Date.now()-awayStart;
+ awayStart=0;
 
- if(away<MIN_AWAY_MS){      // just a flicker, ignore
-  awayStart=0;
+ if(away<MIN_AWAY_MS){      // just a flicker (for example a popup opening), ignore
   save();
   return;
  }
 
  leftEver=true;
- if(away>=HOLD_MS)completeStep();
- else failStep();
+ save();
+ // Back early? Nothing fails: the countdown keeps running and the step finishes
+ // when the 5 seconds (counted from the tap) are over.
+ if(Date.now()-openedAt>=HOLD_MS)completeStep();
 }
 
 document.addEventListener("visibilitychange",()=>{
@@ -1258,7 +1250,7 @@ function loadPopunder(){
  const src=adSrc(ADSTERRA.popunderSrc);
  if(!src)return;
  popunderLoaded=true;
- addAdScript(src,document.body,false);
+ addAdScript(src,document.body,true);
 }
 
 /* ---------- Start ---------- */
@@ -1274,10 +1266,10 @@ function begin(){
  if(active){
   // The page was reloaded or reopened while an ad was open
   // (this is what happens inside Telegram's in-app browser).
-  const from=awayStart||openedAt;
-  const away=from?Date.now()-from:0;
-  if(away>=HOLD_MS)completeStep();
-  else failStep();
+  awayStart=0;
+  leftEver=true;      // the page was replaced, so the visitor did leave it
+  if(!openedAt||Date.now()-openedAt>=HOLD_MS)completeStep();
+  else runCountdown(step+1);     // keep counting the remaining seconds
  }
 }
 
